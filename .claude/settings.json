@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(nlm --help)",
+      "Bash(nlm source *)"
+    ]
+  }
+}

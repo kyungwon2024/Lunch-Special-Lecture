@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>점심특강 — 전체 화면 갤러리</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
+
+:root {
+  --brand-primary: #FFA726;
+  --brand-primary-dark: #F57C00;
+  --brand-primary-light: #FFE0B2;
+  --brand-secondary: #43A047;
+  --brand-secondary-dark: #2E7D32;
+  --brand-accent: #FF5722;
+  --brand-accent-dark: #E64A19;
+  --gray-0: #FFFFFF;
+  --gray-50: #FAFAFA;
+  --gray-100: #F3F4F6;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-400: #9CA3AF;
+  --gray-500: #6B7280;
+  --gray-600: #4B5563;
+  --gray-700: #374151;
+  --gray-800: #1F2937;
+  --gray-900: #111827;
+  --success: #2E7D32; --success-bg: #E8F5E9;
+  --warning: #ED6C02; --warning-bg: #FFF3E0;
+  --danger:  #D32F2F; --danger-bg:  #FFEBEE;
+  --info:    #1976D2; --info-bg:    #E3F2FD;
+  --surface-0: #FFFFFF;
+  --surface-1: #FAFAFA;
+  --surface-2: #FFFFFF;
+  --surface-3: #FFFFFF;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px; --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.12);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.15);
+  --motion-micro: 100ms ease-out; --motion-fast: 150ms ease-out;
+  --motion-normal: 200ms ease-out; --motion-slow: 300ms ease-out;
+  --motion-celebration: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  --font-sans: 'Pretendard Variable', 'Pretendard', 'Noto Sans KR', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'D2Coding', 'SF Mono', Consolas, monospace;
+}
+
+.app-screen[data-theme="dark"] {
+  --brand-primary: #FFB74D; --brand-primary-dark: #FF8F00; --brand-primary-light: rgba(255,167,38,0.30);
+  --brand-secondary: #66BB6A; --brand-accent: #FF7043;
+  --gray-0: #0F1419; --gray-50: #1A2028; --gray-100: #242C36; --gray-200: #2F3742;
+  --gray-300: #3F4856; --gray-400: #6B7480; --gray-500: #95A0AE; --gray-600: #B8C2CC;
+  --gray-700: #D5DCE5; --gray-800: #E8EDF2; --gray-900: #F5F7FA;
+  --success-bg: rgba(46,125,50,0.18); --warning-bg: rgba(237,108,2,0.18);
+  --danger-bg: rgba(211,47,47,0.18); --info-bg: rgba(25,118,210,0.18);
+  --surface-0: #0F1419; --surface-1: #1A2028; --surface-2: #1A2028; --surface-3: #242C36;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.4); --shadow-md: 0 4px 12px rgba(0,0,0,0.5); --shadow-lg: 0 8px 30px rgba(0,0,0,0.6);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; background: #ECECE7; font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+.app-screen {
+  --font-scale: 1;
+  position: relative; height: 100%; width: 100%;
+  background: var(--surface-0); color: var(--gray-900);
+  font-family: var(--font-sans); overflow: hidden;
+}
+.tnum { font-variant-numeric: tabular-nums; }
+.app-scroll { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.app-scroll::-webkit-scrollbar { display: none; }
+
+@keyframes screenIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes screenInBack { from { transform: translateX(-30%); filter: brightness(0.9); } to { transform: translateX(0); filter: brightness(1); } }
+@keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulseRing { 0% { transform: scale(0.3); opacity: 0.9; } 100% { transform: scale(2.6); opacity: 0; } }
+@keyframes checkPop { 0% { transform: scale(0); } 55% { transform: scale(1.18); } 100% { transform: scale(1); } }
+@keyframes confettiFall { 0% { transform: translateY(-12px) rotate(0deg); opacity: 1; } 100% { transform: translateY(160px) rotate(420deg); opacity: 0; } }
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes floatUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.skeleton {
+  background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 37%, var(--gray-100) 63%);
+  background-size: 200% 100%; animation: shimmer 1.5s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) { * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+</style>
+</head>
+<body>
+<div id="gallery-root"></div>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+<script type="text/babel">
+// ── ios-frame ──────────────────────────────────────────────────
+function IOSStatusBar({ dark = false, time = '9:41' }) {
+  const c = dark ? '#fff' : '#000';
+  return (
+    <div style={{ display:'flex', gap:154, alignItems:'center', justifyContent:'center', padding:'21px 24px 19px', boxSizing:'border-box', position:'relative', zIndex:20, width:'100%' }}>
+      <div style={{ flex:1, height:22, display:'flex', alignItems:'center', justifyContent:'center', paddingTop:1.5 }}>
+        <span style={{ fontFamily:'-apple-system,"SF Pro",system-ui', fontWeight:590, fontSize:17, lineHeight:'22px', color:c }}>{time}</span>
+      </div>
+      <div style={{ flex:1, height:22, display:'flex', alignItems:'center', justifyContent:'center', gap:7, paddingTop:1, paddingRight:1 }}>
+        <svg width="19" height="12" viewBox="0 0 19 12">
+          <rect x="0" y="7.5" width="3.2" height="4.5" rx="0.7" fill={c}/>
+          <rect x="4.8" y="5" width="3.2" height="7" rx="0.7" fill={c}/>
+          <rect x="9.6" y="2.5" width="3.2" height="9.5" rx="0.7" fill={c}/>
+          <rect x="14.4" y="0" width="3.2" height="12" rx="0.7" fill={c}/>
+        </svg>
+        <svg width="17" height="12" viewBox="0 0 17 12">
+          <path d="M8.5 3.2C10.8 3.2 12.9 4.1 14.4 5.6L15.5 4.5C13.7 2.7 11.2 1.5 8.5 1.5C5.8 1.5 3.3 2.7 1.5 4.5L2.6 5.6C4.1 4.1 6.2 3.2 8.5 3.2Z" fill={c}/>
+          <path d="M8.5 6.8C9.9 6.8 11.1 7.3 12 8.2L13.1 7.1C11.8 5.9 10.2 5.1 8.5 5.1C6.8 5.1 5.2 5.9 3.9 7.1L5 8.2C5.9 7.3 7.1 6.8 8.5 6.8Z" fill={c}/>
+          <circle cx="8.5" cy="10.5" r="1.5" fill={c}/>
+        </svg>
+        <svg width="27" height="13" viewBox="0 0 27 13">
+          <rect x="0.5" y="0.5" width="23" height="12" rx="3.5" stroke={c} strokeOpacity="0.35" fill="none"/>
+          <rect x="2" y="2" width="20" height="9" rx="2" fill={c}/>
+          <path d="M25 4.5V8.5C25.8 8.2 26.5 7.2 26.5 6.5C26.5 5.8 25.8 4.8 25 4.5Z" fill={c} fillOpacity="0.4"/>
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+function IOSDevice({ children, width=402, height=874, dark=false }) {
+  return (
+    <div style={{ width, height, borderRadius:48, overflow:'hidden', position:'relative',
+      background: dark ? '#000' : '#F2F2F7',
+      boxShadow:'0 40px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
+      fontFamily:'-apple-system,system-ui,sans-serif', WebkitFontSmoothing:'antialiased' }}>
+      <div style={{ position:'absolute', top:11, left:'50%', transform:'translateX(-50%)', width:126, height:37, borderRadius:24, background:'#000', zIndex:105 }} />
+      <div style={{ position:'absolute', top:0, left:0, right:0, zIndex:100 }}>
+        <IOSStatusBar dark={dark} />
+      </div>
+      <div style={{ height:'100%', display:'flex', flexDirection:'column' }}>
+        <div style={{ flex:1, overflow:'auto' }}>{children}</div>
+      </div>
+      <div style={{ position:'absolute', bottom:0, left:0, right:0, zIndex:110, height:34, display:'flex', justifyContent:'center', alignItems:'flex-end', paddingBottom:8, pointerEvents:'none' }}>
+        <div style={{ width:139, height:5, borderRadius:100, background: dark ? 'rgba(255,255,255,0.7)' : 'rgba(0,0,0,0.25)' }} />
+      </div>
+    </div>
+  );
+}
+</script>
+
+<script type="text/babel">
+// ── data ──────────────────────────────────────────────────────
+const CATEGORIES = {
+  korean:  { label:'한식',   emoji:'🍚', hue:28  },
+  bunsik:  { label:'분식',   emoji:'🍜', hue:8   },
+  cafe:    { label:'카페',   emoji:'☕', hue:35  },
+  western: { label:'양식',   emoji:'🍝', hue:45  },
+  chinese: { label:'중식',   emoji:'🥟', hue:14  },
+  japanese:{ label:'일식',   emoji:'🍱', hue:200 },
+  healthy: { label:'건강식', emoji:'🥗', hue:130 },
+};
+const SPECIALS = [
+  { id:'sp01', store:'진고개 한식당', cat:'korean', rating:4.8, dist:0.1, menu:'제육볶음 쌈밥정식', price:10000, sale:7500, remain:8, total:30, status:'open', prep:'15-25분', solo:true, expire:'14:00', addr:'서울 강남구 테헤란로 124', desc:'국산 한돈 + 유기농 쌈채소. 매일 아침 직접 담그는 강된장과 함께 드세요.', promo:true },
+  { id:'sp02', store:'동백분식', cat:'bunsik', rating:4.6, dist:0.2, menu:'김치제육 + 라면 세트', price:8000, sale:5900, remain:12, total:40, status:'open', prep:'10-15분', solo:true, expire:'14:30', addr:'서울 강남구 역삼로 92', desc:'얼큰한 김치제육에 라면 사리까지. 혼밥러를 위한 1인 세트 구성입니다.' },
+  { id:'sp03', store:'그린보울', cat:'healthy', rating:4.9, dist:0.3, menu:'닭가슴살 포케볼', price:11000, sale:8800, remain:4, total:20, status:'closing', prep:'5-10분', solo:true, expire:'13:30', addr:'서울 강남구 봉은사로 318', desc:'저염 소스 · 단백질 32g. 점심 후 나른함 없는 가벼운 한 끼.' },
+  { id:'sp04', store:'미도리 라멘', cat:'japanese', rating:4.7, dist:0.4, menu:'차슈 돈코츠 라멘', price:12000, sale:9600, remain:6, total:25, status:'open', prep:'15-20분', solo:true, expire:'14:00', addr:'서울 강남구 선릉로 428', desc:'18시간 끓인 진한 돈코츠 육수와 직화 차슈 3장.' },
+  { id:'sp05', store:'파스타공방', cat:'western', rating:4.5, dist:0.5, menu:'트러플 크림 파스타', price:14000, sale:9800, remain:4, total:18, status:'open', prep:'20-25분', solo:false, expire:'14:00', addr:'서울 강남구 테헤란로 211', desc:'블랙 트러플 오일을 더한 생크림 파스타. 마늘빵 1조각 포함.' },
+  { id:'sp06', store:'황금성', cat:'chinese', rating:4.4, dist:0.6, menu:'짜장 + 미니탕수육', price:11000, sale:7700, remain:9, total:35, status:'open', prep:'15-20분', solo:true, expire:'14:30', addr:'서울 강남구 강남대로 358', desc:'춘장을 직접 볶아 만든 옛날식 짜장과 바삭한 미니 탕수육 구성.' },
+  { id:'sp07', store:'본죽 삼계', cat:'korean', rating:4.6, dist:0.3, menu:'전복 삼계죽', price:13000, sale:9750, remain:7, total:24, status:'open', prep:'10-15분', solo:true, expire:'14:00', addr:'서울 강남구 역삼로 145', desc:'국산 전복과 찹쌀로 끓인 보양 죽. 속이 편한 점심을 찾는 분께.' },
+  { id:'sp08', store:'버거랩', cat:'western', rating:4.3, dist:0.7, menu:'더블 치즈버거 세트', price:9900, sale:6900, remain:3, total:22, status:'closing', prep:'10-15분', solo:true, expire:'13:30', addr:'서울 강남구 테헤란로 87', desc:'100% 순쇠고기 패티 2장 + 감자튀김 + 콜라. 빠른 픽업 가능.' },
+];
+function discountPct(s) { return Math.round((1 - s.sale / s.price) * 100); }
+function won(n) { return '₩' + n.toLocaleString('ko-KR'); }
+const STATUS_META = {
+  open:    { label:'영업중', token:'success' },
+  closing: { label:'곧 마감', token:'warning' },
+  closed:  { label:'마감',   token:'gray'    },
+};
+const PRESET_COUPONS = [
+  { id:'cp-pre1', specialId:'sp07', status:'available', issuedAt:'오늘 11:20', expireIn:142 },
+  { id:'cp-pre2', specialId:'sp04', status:'used',      usedAt:'어제 12:34' },
+  { id:'cp-pre3', specialId:'sp02', status:'expired',   expiredAt:'5/29 만료' },
+];
+</script>
+
+<script type="text/babel">
+// ── ui components ─────────────────────────────────────────────
+const { useState, useEffect, useRef } = React;
+
+const ICON_PATHS = {
+  search:   '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  bell:     '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+  x:        '<path d="M18 6 6 18M6 6l12 12"/>',
+  back:     '<path d="M15 18l-6-6 6-6"/>',
+  share:    '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/>',
+  heart:    '<path d="M19 14c1.5-1.5 3-3.4 3-5.5A4.5 4.5 0 0 0 12 5 4.5 4.5 0 0 0 2 8.5c0 2.1 1.5 4 3 5.5l7 7z"/>',
+  sliders:  '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
+  pin:      '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
+  clock:    '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  user:     '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  ticket:   '<path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H5a2 2 0 0 1-2-2 2 2 0 0 0 0-4z"/><path d="M9 8v8" strokeDasharray="2 2"/>',
+  qr:       '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v7h-7v-3"/>',
+  home:     '<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+  list:     '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1.2"/><circle cx="3.5" cy="12" r="1.2"/><circle cx="3.5" cy="18" r="1.2"/>',
+  map:      '<path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><line x1="9" y1="4" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="20"/>',
+  check:    '<path d="M20 6L9 17l-5-5"/>',
+  chevDown: '<path d="M6 9l6 6 6-6"/>',
+  chevRight:'<path d="M9 6l6 6-6 6"/>',
+  flame:    '<path d="M12 22c4 0 7-3 7-7 0-3-2-5-3-7-1.2 1.5-2 2-3 2 0-2.5-1-5-3-7 0 3-2 4-3 6-.7 1.3-1 2.6-1 4 0 4 3 7 6 7z"/>',
+  shield:   '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',
+  phone:    '<rect x="7" y="2" width="10" height="20" rx="2"/><line x1="11" y1="18" x2="13" y2="18"/>',
+  copy:     '<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/>',
+  seat:     '<path d="M5 11V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v5"/><path d="M3 11h18v5H3z"/><path d="M6 16v4M18 16v4"/>',
+};
+
+function Icon({ name, size=24, color='currentColor', strokeWidth, fill='none', style={} }) {
+  const sw = strokeWidth || (size >= 24 ? 1.6 : 2);
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink:0, ...style }} dangerouslySetInnerHTML={{ __html: ICON_PATHS[name] || '' }} />;
+}
+
+function FoodPlaceholder({ special, ratio='4 / 3', rounded=0, label=true, fill=false }) {
+  const cat = CATEGORIES[special.cat];
+  const h = cat.hue;
+  const c1 = `hsl(${h} 72% 90%)`, c2 = `hsl(${h} 70% 84%)`, ink = `hsl(${h} 55% 32%)`;
+  return (
+    <div style={{ position:'relative', width:'100%', ...(fill ? { height:'100%' } : { aspectRatio:ratio }), borderRadius:rounded, overflow:'hidden', background:`repeating-linear-gradient(135deg, ${c1} 0 14px, ${c2} 14px 28px)`, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:8 }}>
+      <div style={{ fontSize:40, lineHeight:1 }}>{cat.emoji}</div>
+      {label && <div style={{ fontFamily:'var(--font-mono)', fontSize:11, color:ink, background:'rgba(255,255,255,0.62)', padding:'3px 9px', borderRadius:6, maxWidth:'78%', textAlign:'center', fontWeight:600 }}>{special.menu}</div>}
+      <div style={{ position:'absolute', bottom:7, right:9, fontFamily:'var(--font-mono)', fontSize:8.5, letterSpacing:'0.12em', color:ink, opacity:0.55, textTransform:'uppercase' }}>photo</div>
+    </div>
+  );
+}
+
+function StatusBadge({ status, size='md' }) {
+  const m = STATUS_META[status];
+  const map = { success:{dot:'var(--success)',text:'var(--success)',bg:'var(--success-bg)'}, warning:{dot:'var(--warning)',text:'var(--warning)',bg:'var(--warning-bg)'}, gray:{dot:'var(--gray-400)',text:'var(--gray-500)',bg:'var(--gray-100)'} }[m.token];
+  const fs = size === 'sm' ? 11 : 12;
+  return (
+    <span style={{ display:'inline-flex', alignItems:'center', gap:5, background:map.bg, color:map.text, borderRadius:'var(--radius-full)', padding: size==='sm' ? '3px 8px' : '4px 10px', fontWeight:600, fontSize:`calc(${fs}px * var(--font-scale))`, lineHeight:1 }}>
+      <span style={{ width:7, height:7, borderRadius:9999, background:map.dot, boxShadow: status !== 'closed' ? `0 0 0 3px ${map.bg}` : 'none' }} />
+      {m.label}
+    </span>
+  );
+}
+
+function DiscountBadge({ pct, big=false }) {
+  return <span className="tnum" style={{ display:'inline-flex', alignItems:'center', justifyContent:'center', background:'var(--brand-accent)', color:'#fff', fontWeight:800, borderRadius:'var(--radius-full)', padding: big ? '5px 12px' : '4px 9px', fontSize:`calc(${big?15:13}px * var(--font-scale))`, letterSpacing:'-0.01em', boxShadow:'0 2px 8px rgba(255,87,34,0.35)' }}>-{pct}%</span>;
+}
+
+function CategoryTag({ cat }) {
+  const c = CATEGORIES[cat];
+  return <span style={{ display:'inline-flex', alignItems:'center', gap:4, flexShrink:0, whiteSpace:'nowrap', background:'var(--brand-primary-light)', color:'var(--brand-primary-dark)', borderRadius:'var(--radius-md)', padding:'3px 8px', fontWeight:600, fontSize:'calc(12px * var(--font-scale))', lineHeight:1.1 }}><span>{c.emoji}</span><span>{c.label}</span></span>;
+}
+
+function Button({ variant='primary', size='md', children, onClick, disabled, fullWidth, leadingIcon, style={} }) {
+  const [press, setPress] = useState(false);
+  const variants = { primary:{bg:'var(--brand-primary)',color:'#fff',border:'none',shadow:'0 4px 14px rgba(255,167,38,0.36)'}, secondary:{bg:'transparent',color:'var(--brand-primary-dark)',border:'1.5px solid var(--brand-primary)',shadow:'none'}, tertiary:{bg:'var(--gray-100)',color:'var(--gray-700)',border:'none',shadow:'none'}, ghost:{bg:'transparent',color:'var(--brand-primary-dark)',border:'none',shadow:'none'} }[variant];
+  const sizes = { sm:{h:36,px:14,fs:13}, md:{h:46,px:18,fs:15}, lg:{h:56,px:24,fs:17} }[size];
+  return (
+    <button onClick={disabled ? undefined : onClick} disabled={disabled}
+      onPointerDown={() => setPress(true)} onPointerUp={() => setPress(false)} onPointerLeave={() => setPress(false)}
+      style={{ height:sizes.h, padding:`0 ${sizes.px}px`, width: fullWidth ? '100%' : undefined, background: disabled ? 'var(--gray-200)' : variants.bg, color: disabled ? 'var(--gray-400)' : variants.color, border: disabled ? 'none' : variants.border, borderRadius:'var(--radius-lg)', fontFamily:'var(--font-sans)', fontWeight:600, letterSpacing:'0.01em', fontSize:`calc(${sizes.fs}px * var(--font-scale))`, display:'inline-flex', alignItems:'center', justifyContent:'center', gap:8, cursor: disabled ? 'not-allowed' : 'pointer', boxShadow: disabled ? 'none' : variants.shadow, transform: press && !disabled ? 'scale(0.97)' : 'scale(1)', transition:'transform var(--motion-fast), background var(--motion-fast)', ...style }}>
+      {leadingIcon && <Icon name={leadingIcon} size={size==='lg' ? 20 : 18} />}
+      {children}
+    </button>
+  );
+}
+
+function Toast({ toast }) {
+  if (!toast) return null;
+  const tone = { success:{bg:'var(--success)',icon:'check'}, info:{bg:'var(--gray-800)',icon:'bell'}, warning:{bg:'var(--warning)',icon:'flame'}, danger:{bg:'var(--danger)',icon:'x'} }[toast.tone || 'info'];
+  return (
+    <div style={{ position:'absolute', top:64, left:'50%', transform:'translateX(-50%)', zIndex:400, width:'calc(100% - 32px)', maxWidth:360, background:tone.bg, color:'#fff', borderRadius:'var(--radius-lg)', padding:'12px 16px', display:'flex', alignItems:'center', gap:10, boxShadow:'var(--shadow-lg)', animation:'toastIn 300ms ease-out', fontSize:'calc(14px * var(--font-scale))', fontWeight:500 }}>
+      <Icon name={tone.icon} size={18} /><span style={{ flex:1 }}>{toast.msg}</span>
+    </div>
+  );
+}
+</script>
+
+<script type="text/babel">
+// ── chrome (header + bottom tab) ──────────────────────────────
+function AppHeader({ title, onBell, onSettings, badge=0, subtitle }) {
+  const iconBtnStyle = { position:'relative', width:40, height:40, borderRadius:10, border:'none', background:'transparent', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer' };
+  const badgeDotStyle = { position:'absolute', top:5, right:5, minWidth:16, height:16, padding:'0 4px', borderRadius:9999, background:'var(--danger)', color:'#fff', fontSize:10, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', border:'1.5px solid var(--surface-1)' };
+  return (
+    <div style={{ paddingTop:52, paddingBottom:10, paddingLeft:18, paddingRight:14, background:'var(--surface-1)', position:'relative', zIndex:5, borderBottom:'1px solid var(--gray-100)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+      <div>
+        <div style={{ display:'flex', alignItems:'center', gap:7, fontSize:'calc(21px * var(--font-scale))', fontWeight:800, color:'var(--gray-900)', letterSpacing:'-0.02em' }}>
+          <span style={{ width:26, height:26, borderRadius:8, display:'inline-flex', alignItems:'center', justifyContent:'center', fontSize:15, background:'linear-gradient(135deg, var(--brand-primary), var(--brand-accent))', boxShadow:'0 3px 8px rgba(255,167,38,0.4)' }}>🍱</span>
+          {title}
+        </div>
+        {subtitle && <div style={{ fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-500)', marginTop:3, paddingLeft:1 }}>{subtitle}</div>}
+      </div>
+      <div style={{ display:'flex', alignItems:'center', gap:4 }}>
+        <button onClick={onBell} style={iconBtnStyle}>
+          <Icon name="bell" size={22} color="var(--gray-700)" />
+          {badge > 0 && <span style={badgeDotStyle} className="tnum">{badge}</span>}
+        </button>
+        <button onClick={onSettings} style={iconBtnStyle}>
+          <Icon name="settings" size={22} color="var(--gray-700)" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const TABS = [
+  { id:'feed',    label:'홈',    icon:'home' },
+  { id:'explore', label:'탐색',  icon:'map' },
+  { id:'coupons', label:'쿠폰함', icon:'ticket' },
+  { id:'noti',    label:'알림',  icon:'bell' },
+  { id:'my',      label:'마이',  icon:'user' },
+];
+
+function BottomTab({ active, onChange, couponCount=0, notiCount=0 }) {
+  return (
+    <div style={{ flexShrink:0, height:60, paddingBottom:22, background:'var(--surface-1)', borderTop:'1px solid var(--gray-200)', display:'flex', alignItems:'stretch', position:'relative', zIndex:30 }}>
+      {TABS.map(t => {
+        const on = active === t.id;
+        const count = t.id==='coupons' ? couponCount : t.id==='noti' ? notiCount : 0;
+        return (
+          <button key={t.id} onClick={() => onChange(t.id)}
+            style={{ flex:1, border:'none', background:'transparent', cursor:'pointer', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', gap:3, paddingTop:7, position:'relative' }}>
+            <div style={{ position:'relative' }}>
+              <Icon name={t.icon} size={24} color={on ? 'var(--brand-primary-dark)' : 'var(--gray-400)'} fill={on ? 'var(--brand-primary-light)' : 'none'} strokeWidth={on ? 1.9 : 1.6} />
+              {count > 0 && <span style={{ position:'absolute', top:-4, right:-7, minWidth:15, height:15, padding:'0 3px', borderRadius:9999, background:'var(--danger)', color:'#fff', fontSize:9.5, fontWeight:700, display:'flex', alignItems:'center', justifyContent:'center', border:'1.5px solid var(--surface-1)' }} className="tnum">{count}</span>}
+            </div>
+            <span style={{ fontSize:'calc(11px * var(--font-scale))', fontWeight: on ? 700 : 500, color: on ? 'var(--brand-primary-dark)' : 'var(--gray-500)' }}>{t.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+</script>
+
+<script type="text/babel">
+// ── feed screen ───────────────────────────────────────────────
+const SORTS = ['거리순','할인율순','인기순','즉시입장'];
+
+function CardStandard({ s, onTap }) {
+  const pct = discountPct(s);
+  const [press, setPress] = useState(false);
+  return (
+    <div onClick={() => onTap(s)} onPointerDown={() => setPress(true)} onPointerUp={() => setPress(false)} onPointerLeave={() => setPress(false)}
+      style={{ background:'var(--surface-2)', borderRadius:'var(--radius-xl)', overflow:'hidden', boxShadow:'var(--shadow-md)', cursor:'pointer', transform: press ? 'scale(0.985)' : 'scale(1)', transition:'transform var(--motion-fast)', border:'1px solid var(--gray-100)' }}>
+      <div style={{ position:'relative' }}>
+        <FoodPlaceholder special={s} ratio="4 / 3" />
+        <div style={{ position:'absolute', top:10, left:10 }}><StatusBadge status={s.status} /></div>
+        <div style={{ position:'absolute', top:10, right:10 }}><DiscountBadge pct={pct} /></div>
+      </div>
+      <div style={{ padding:14 }}>
+        <div style={{ display:'flex', alignItems:'baseline', justifyContent:'space-between', gap:8 }}>
+          <span style={{ fontSize:'calc(18px * var(--font-scale))', fontWeight:700, color:'var(--gray-900)', letterSpacing:'-0.01em' }}>{s.store}</span>
+          <span style={{ fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-500)', flexShrink:0 }}>⭐ {s.rating} · {s.dist}km</span>
+        </div>
+        <div style={{ fontSize:'calc(15px * var(--font-scale))', color:'var(--gray-600)', marginTop:4, fontWeight:500 }}>{s.menu}</div>
+        <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginTop:10 }}>
+          <div style={{ display:'flex', alignItems:'baseline', gap:8 }}>
+            <span className="tnum" style={{ fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-400)', textDecoration:'line-through' }}>{won(s.price)}</span>
+            <span className="tnum" style={{ fontSize:'calc(24px * var(--font-scale))', fontWeight:800, color:'var(--brand-primary-dark)', letterSpacing:'-0.02em' }}>{won(s.sale)}</span>
+          </div>
+          <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-500)', fontWeight:500 }}>
+            <Icon name="clock" size={14} color="var(--gray-400)" />{s.prep}
+          </span>
+        </div>
+        {s.remain <= 5 && <div style={{ marginTop:9, display:'inline-flex', alignItems:'center', gap:4, color:'var(--brand-accent)', fontWeight:700, fontSize:'calc(12px * var(--font-scale))' }}><Icon name="flame" size={14} fill="var(--brand-accent)" color="var(--brand-accent)" /> 잔여 {s.remain}개 · 마감 임박</div>}
+      </div>
+    </div>
+  );
+}
+
+function CardCompact({ s, onTap }) {
+  const pct = discountPct(s);
+  const [press, setPress] = useState(false);
+  return (
+    <div onClick={() => onTap(s)} onPointerDown={() => setPress(true)} onPointerUp={() => setPress(false)} onPointerLeave={() => setPress(false)}
+      style={{ background:'var(--surface-2)', borderRadius:'var(--radius-lg)', overflow:'hidden', boxShadow:'var(--shadow-sm)', cursor:'pointer', display:'flex', gap:12, padding:10, transform: press ? 'scale(0.985)' : 'scale(1)', transition:'transform var(--motion-fast)', border:'1px solid var(--gray-100)' }}>
+      <div style={{ width:96, flexShrink:0, position:'relative' }}>
+        <FoodPlaceholder special={s} ratio="1 / 1" rounded={10} label={false} />
+        <div style={{ position:'absolute', bottom:5, left:5 }}><DiscountBadge pct={pct} /></div>
+      </div>
+      <div style={{ flex:1, minWidth:0, display:'flex', flexDirection:'column', justifyContent:'center' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:3, whiteSpace:'nowrap' }}>
+          <StatusBadge status={s.status} size="sm" />
+          <span style={{ fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-500)', flexShrink:0 }}>{s.dist}km · ⭐{s.rating}</span>
+        </div>
+        <div style={{ fontSize:'calc(16px * var(--font-scale))', fontWeight:700, color:'var(--gray-900)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{s.store}</div>
+        <div style={{ fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-600)', marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{s.menu}</div>
+        <div style={{ display:'flex', alignItems:'baseline', gap:7, marginTop:6 }}>
+          <span className="tnum" style={{ fontSize:'calc(19px * var(--font-scale))', fontWeight:800, color:'var(--brand-primary-dark)' }}>{won(s.sale)}</span>
+          <span className="tnum" style={{ fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-400)', textDecoration:'line-through' }}>{won(s.price)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CardMagazine({ s, onTap }) {
+  const pct = discountPct(s);
+  const [press, setPress] = useState(false);
+  return (
+    <div onClick={() => onTap(s)} onPointerDown={() => setPress(true)} onPointerUp={() => setPress(false)} onPointerLeave={() => setPress(false)}
+      style={{ position:'relative', borderRadius:'var(--radius-xl)', overflow:'hidden', boxShadow:'var(--shadow-md)', cursor:'pointer', aspectRatio:'3 / 2.2', transform: press ? 'scale(0.985)' : 'scale(1)', transition:'transform var(--motion-fast)' }}>
+      <FoodPlaceholder special={s} ratio="3 / 2.2" rounded={0} label={false} />
+      <div style={{ position:'absolute', inset:0, background:'linear-gradient(to top, rgba(17,24,39,0.82) 0%, rgba(17,24,39,0.28) 42%, transparent 70%)' }} />
+      <div style={{ position:'absolute', top:12, left:12, right:12, display:'flex', justifyContent:'space-between' }}>
+        <StatusBadge status={s.status} /><DiscountBadge pct={pct} big />
+      </div>
+      <div style={{ position:'absolute', left:14, right:14, bottom:13, color:'#fff' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:7, marginBottom:5 }}>
+          <CategoryTag cat={s.cat} />
+          {s.remain <= 5 && <span style={{ display:'inline-flex', alignItems:'center', gap:3, fontSize:'calc(11px * var(--font-scale))', fontWeight:700, color:'#FFD0BE' }}><Icon name="flame" size={13} fill="#FF7043" color="#FF7043" /> 잔여 {s.remain}</span>}
+        </div>
+        <div style={{ fontSize:'calc(20px * var(--font-scale))', fontWeight:800, letterSpacing:'-0.02em', textShadow:'0 1px 8px rgba(0,0,0,0.4)' }}>{s.store}</div>
+        <div style={{ fontSize:'calc(13px * var(--font-scale))', opacity:0.92, marginTop:1 }}>{s.menu} · {s.dist}km</div>
+        <div style={{ display:'flex', alignItems:'baseline', gap:8, marginTop:7 }}>
+          <span className="tnum" style={{ fontSize:'calc(25px * var(--font-scale))', fontWeight:800, textShadow:'0 1px 8px rgba(0,0,0,0.4)' }}>{won(s.sale)}</span>
+          <span className="tnum" style={{ fontSize:'calc(13px * var(--font-scale))', opacity:0.75, textDecoration:'line-through' }}>{won(s.price)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const CARD_VARIANTS = { standard:CardStandard, compact:CardCompact, magazine:CardMagazine };
+
+function chipStyle(active) {
+  return { display:'inline-flex', alignItems:'center', gap:4, height:34, padding:'0 12px', borderRadius:'var(--radius-full)', border: active ? '1px solid var(--brand-primary)' : '1px solid var(--gray-200)', background: active ? 'var(--brand-primary-light)' : 'var(--surface-2)', color: active ? 'var(--brand-primary-dark)' : 'var(--gray-700)', fontSize:'calc(13px * var(--font-scale))', fontWeight:600, cursor:'pointer', fontFamily:'var(--font-sans)', whiteSpace:'nowrap' };
+}
+
+function FeedScreen({ specials, cardLayout, onTapSpecial, sort, onSort, onBell, onSettings, notiCount }) {
+  const Card = CARD_VARIANTS[cardLayout] || CardStandard;
+  const [showSort, setShowSort] = useState(false);
+  const live = specials.filter(s => s.status !== 'closed');
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'var(--surface-0)' }}>
+      <AppHeader title="점심특강" subtitle="강남 테헤란로 · 점심특선 26곳" onBell={onBell} onSettings={onSettings} badge={notiCount} />
+      <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 16px', background:'var(--surface-1)', borderBottom:'1px solid var(--gray-100)', position:'relative', zIndex:4 }}>
+        <button onClick={() => setShowSort(v => !v)} style={chipStyle(true)}><Icon name="chevDown" size={15} color="var(--gray-600)" />{sort}</button>
+        <button style={chipStyle(false)}><Icon name="sliders" size={15} color="var(--gray-600)" />필터</button>
+        <button style={chipStyle(false)}><Icon name="seat" size={15} color="var(--gray-600)" />1인좌석</button>
+        <div style={{ flex:1 }} />
+        <span style={{ fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-400)' }} className="tnum">{live.length}곳</span>
+      </div>
+      {showSort && (
+        <div style={{ position:'absolute', top:150, left:16, zIndex:60, background:'var(--surface-3)', borderRadius:'var(--radius-lg)', boxShadow:'var(--shadow-lg)', overflow:'hidden', minWidth:140, animation:'floatUp 150ms ease-out', border:'1px solid var(--gray-100)' }}>
+          {SORTS.map(opt => (
+            <button key={opt} onClick={() => { onSort(opt); setShowSort(false); }}
+              style={{ display:'flex', width:'100%', alignItems:'center', justifyContent:'space-between', gap:10, padding:'11px 14px', border:'none', background:'transparent', cursor:'pointer', fontSize:'calc(14px * var(--font-scale))', color: opt===sort ? 'var(--brand-primary-dark)' : 'var(--gray-700)', fontWeight: opt===sort ? 700 : 500, fontFamily:'var(--font-sans)' }}>
+              {opt}{opt===sort && <Icon name="check" size={16} color="var(--brand-primary-dark)" />}
+            </button>
+          ))}
+        </div>
+      )}
+      <div className="app-scroll" style={{ flex:1, padding:'14px 16px 20px' }}>
+        <div style={{ display:'flex', flexDirection:'column', gap: cardLayout==='compact' ? 10 : 14 }}>
+          {live.map((s, i) => (
+            <div key={s.id} style={{ animation:`floatUp 320ms ease-out ${i*45}ms both` }}>
+              <Card s={s} onTap={onTapSpecial} />
+            </div>
+          ))}
+        </div>
+        <div style={{ textAlign:'center', padding:'20px 0 8px', color:'var(--gray-400)', fontSize:'calc(12px * var(--font-scale))' }}>11:00~14:00 점심특선만 노출 중 · 반경 500m</div>
+      </div>
+    </div>
+  );
+}
+</script>
+
+<script type="text/babel">
+// ── detail screen ─────────────────────────────────────────────
+function MiniMap({ s }) {
+  return (
+    <div style={{ position:'relative', width:'100%', height:130, borderRadius:'var(--radius-lg)', overflow:'hidden', background:'var(--gray-100)', backgroundImage:'linear-gradient(var(--gray-200) 1px, transparent 1px), linear-gradient(90deg, var(--gray-200) 1px, transparent 1px)', backgroundSize:'28px 28px', border:'1px solid var(--gray-200)' }}>
+      <div style={{ position:'absolute', top:'52%', left:0, right:0, height:9, background:'var(--gray-0)', borderTop:'1px solid var(--gray-200)', borderBottom:'1px solid var(--gray-200)' }} />
+      <div style={{ position:'absolute', top:0, bottom:0, left:'38%', width:7, background:'var(--gray-0)', borderLeft:'1px solid var(--gray-200)', borderRight:'1px solid var(--gray-200)' }} />
+      <div style={{ position:'absolute', top:'52%', left:'20%', transform:'translate(-50%,-50%)' }}>
+        <div style={{ width:12, height:12, borderRadius:9999, background:'var(--info)', border:'2px solid #fff', boxShadow:'0 0 0 4px rgba(25,118,210,0.25)' }} />
+      </div>
+      <div style={{ position:'absolute', top:'38%', left:'62%', transform:'translate(-50%,-100%)' }}>
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
+          <div style={{ background:'var(--brand-primary)', color:'#fff', padding:'4px 8px', borderRadius:8, fontSize:11, fontWeight:700, boxShadow:'var(--shadow-md)', whiteSpace:'nowrap' }}>{s.store}</div>
+          <div style={{ width:0, height:0, borderLeft:'5px solid transparent', borderRight:'5px solid transparent', borderTop:'7px solid var(--brand-primary)' }} />
+        </div>
+      </div>
+      <div style={{ position:'absolute', bottom:8, right:10, fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-600)', background:'rgba(255,255,255,0.85)', padding:'3px 8px', borderRadius:6, fontWeight:600 }}>도보 2분 · {s.dist}km</div>
+    </div>
+  );
+}
+
+const glassBtn = { width:40, height:40, borderRadius:9999, border:'none', cursor:'pointer', background:'rgba(255,255,255,0.82)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'var(--shadow-sm)' };
+
+function DetailScreen({ s, onBack, onGetCoupon, soldOut }) {
+  const pct = discountPct(s);
+  const [fav, setFav] = useState(false);
+  const remainPct = Math.round((s.remain / s.total) * 100);
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'var(--surface-0)' }}>
+      <div className="app-scroll" style={{ flex:1 }}>
+        <div style={{ position:'relative' }}>
+          <FoodPlaceholder special={s} ratio="1 / 1" />
+          <div style={{ position:'absolute', top:50, left:14, right:14, display:'flex', justifyContent:'space-between' }}>
+            <button onClick={onBack} style={glassBtn}><Icon name="back" size={22} color="var(--gray-800)" /></button>
+            <div style={{ display:'flex', gap:8 }}>
+              <button onClick={() => setFav(v => !v)} style={glassBtn}><Icon name="heart" size={21} color={fav ? 'var(--brand-accent)' : 'var(--gray-800)'} fill={fav ? 'var(--brand-accent)' : 'none'} /></button>
+              <button style={glassBtn}><Icon name="share" size={20} color="var(--gray-800)" /></button>
+            </div>
+          </div>
+          <div style={{ position:'absolute', bottom:12, left:'50%', transform:'translateX(-50%)', display:'flex', gap:6 }}>
+            {[0,1,2,3].map(i => <span key={i} style={{ width: i===0?16:6, height:6, borderRadius:9999, background: i===0 ? '#fff' : 'rgba(255,255,255,0.55)' }} />)}
+          </div>
+        </div>
+        <div style={{ padding:'18px 18px 8px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:8 }}>
+            <CategoryTag cat={s.cat} /><StatusBadge status={s.status} />
+          </div>
+          <div style={{ fontSize:'calc(24px * var(--font-scale))', fontWeight:800, color:'var(--gray-900)', letterSpacing:'-0.02em' }}>{s.store}</div>
+          <div style={{ display:'flex', alignItems:'center', gap:6, marginTop:5, fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-500)' }}>
+            <span style={{ color:'var(--brand-primary-dark)', fontWeight:700 }}>⭐ {s.rating}</span>
+            <span>·</span><Icon name="pin" size={14} color="var(--gray-400)" />{s.addr}
+          </div>
+          <div style={{ display:'flex', flexWrap:'wrap', gap:7, marginTop:13 }}>
+            {s.solo && <span style={{ display:'inline-flex', alignItems:'center', gap:5, background:'var(--gray-100)', borderRadius:'var(--radius-full)', padding:'6px 12px', fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-700)', fontWeight:500 }}><Icon name="seat" size={15} color="var(--gray-500)" />1인좌석 OK</span>}
+            <span style={{ display:'inline-flex', alignItems:'center', gap:5, background:'var(--gray-100)', borderRadius:'var(--radius-full)', padding:'6px 12px', fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-700)', fontWeight:500 }}><Icon name="clock" size={15} color="var(--gray-500)" />예상 {s.prep}</span>
+            <span style={{ display:'inline-flex', alignItems:'center', gap:5, background:'var(--gray-100)', borderRadius:'var(--radius-full)', padding:'6px 12px', fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-700)', fontWeight:500 }}><Icon name="pin" size={15} color="var(--gray-500)" />{s.dist}km · 도보 2분</span>
+          </div>
+          <div style={{ marginTop:18, padding:16, background:'var(--brand-primary-light)', borderRadius:'var(--radius-xl)' }}>
+            <div style={{ fontSize:'calc(16px * var(--font-scale))', fontWeight:600, color:'var(--gray-800)' }}>{s.menu}</div>
+            <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginTop:8 }}>
+              <div style={{ display:'flex', alignItems:'baseline', gap:9 }}>
+                <span className="tnum" style={{ fontSize:'calc(30px * var(--font-scale))', fontWeight:800, color:'var(--brand-primary-dark)', letterSpacing:'-0.02em' }}>{won(s.sale)}</span>
+                <span className="tnum" style={{ fontSize:'calc(15px * var(--font-scale))', color:'var(--gray-400)', textDecoration:'line-through' }}>{won(s.price)}</span>
+              </div>
+              <DiscountBadge pct={pct} big />
+            </div>
+          </div>
+          <div style={{ marginTop:14, display:'flex', gap:10 }}>
+            <div style={{ flex:1, padding:13, borderRadius:'var(--radius-lg)', border:'1px solid var(--gray-200)', background:'var(--surface-2)' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-500)', fontWeight:600 }}><Icon name="flame" size={14} color="var(--brand-accent)" fill="var(--brand-accent)" /> 잔여 수량</div>
+              <div className="tnum" style={{ fontSize:'calc(20px * var(--font-scale))', fontWeight:800, color: s.remain<=5 ? 'var(--brand-accent)' : 'var(--gray-900)', marginTop:4 }}>{s.remain}<span style={{ fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-400)', fontWeight:600 }}> / {s.total}개</span></div>
+              <div style={{ height:5, borderRadius:9999, background:'var(--gray-200)', marginTop:7, overflow:'hidden' }}>
+                <div style={{ height:'100%', width:`${remainPct}%`, background: s.remain<=5 ? 'var(--brand-accent)' : 'var(--brand-primary)', borderRadius:9999 }} />
+              </div>
+            </div>
+            <div style={{ flex:1, padding:13, borderRadius:'var(--radius-lg)', border:'1px solid var(--gray-200)', background:'var(--surface-2)' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:5, fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-500)', fontWeight:600 }}><Icon name="clock" size={14} color="var(--warning)" /> 특선 만료</div>
+              <div className="tnum" style={{ fontSize:'calc(20px * var(--font-scale))', fontWeight:800, color:'var(--gray-900)', marginTop:4 }}>{s.expire}</div>
+              <div style={{ fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-400)', marginTop:7 }}>까지 발급 가능</div>
+            </div>
+          </div>
+          <div style={{ marginTop:18 }}>
+            <div style={{ fontSize:'calc(14px * var(--font-scale))', fontWeight:700, color:'var(--gray-800)', marginBottom:7 }}>사장님 한마디</div>
+            <div style={{ fontSize:'calc(14px * var(--font-scale))', lineHeight:1.6, color:'var(--gray-600)', padding:14, background:'var(--gray-50)', borderRadius:'var(--radius-lg)', borderLeft:'3px solid var(--brand-secondary)' }}>"{s.desc}"</div>
+          </div>
+          <div style={{ marginTop:18 }}>
+            <div style={{ fontSize:'calc(14px * var(--font-scale))', fontWeight:700, color:'var(--gray-800)', marginBottom:7 }}>오시는 길</div>
+            <MiniMap s={s} />
+          </div>
+          <div style={{ height:12 }} />
+        </div>
+      </div>
+      <div style={{ flexShrink:0, padding:'12px 16px 26px', borderTop:'1px solid var(--gray-100)', background:'var(--surface-1)', boxShadow:'0 -4px 16px rgba(0,0,0,0.04)' }}>
+        {soldOut
+          ? <Button variant="primary" size="lg" fullWidth disabled>마감되었습니다</Button>
+          : <Button variant="primary" size="lg" fullWidth leadingIcon="ticket" onClick={() => onGetCoupon(s)}>쿠폰 받기 · {won(s.price - s.sale)} 할인</Button>}
+      </div>
+    </div>
+  );
+}
+</script>
+
+<script type="text/babel">
+// ── flow (verify + celebration) ───────────────────────────────
+const CONFETTI = ['#FFA726','#43A047','#FF5722','#FFB74D','#66BB6A','#1976D2'];
+
+function VerifyScreen({ s, onClose, onVerified, initialStep=1, initialCode }) {
+  const [step, setStep] = useState(initialStep);
+  const [phone] = useState('010-1234-5678');
+  const [code, setCode] = useState(initialCode || ['','','','','','']);
+  const [secs, setSecs] = useState(180);
+  const refs = [useRef(),useRef(),useRef(),useRef(),useRef(),useRef()];
+
+  useEffect(() => {
+    if (step !== 2 || secs <= 0) return;
+    const t = setTimeout(() => setSecs(secs - 1), 1000);
+    return () => clearTimeout(t);
+  }, [step, secs]);
+
+  const mm = String(Math.floor(secs/60)).padStart(1,'0');
+  const ss = String(secs%60).padStart(2,'0');
+  const filled = code.every(c => c !== '');
+
+  function setDigit(i, v) {
+    v = v.replace(/\D/g,'').slice(-1);
+    const next = [...code]; next[i] = v; setCode(next);
+    if (v && i < 5) refs[i+1].current && refs[i+1].current.focus();
+  }
+
+  const labelStyle = { fontSize:'calc(13px * var(--font-scale))', fontWeight:700, color:'var(--gray-700)' };
+  const inputStyle = { width:'100%', height:46, padding:'0 14px', borderRadius:'var(--radius-lg)', border:'1px solid var(--gray-200)', background:'var(--surface-2)', color:'var(--gray-900)', fontSize:'calc(15px * var(--font-scale))', fontFamily:'var(--font-sans)', outline:'none', fontWeight:600 };
+
+  return (
+    <div style={{ position:'absolute', inset:0, zIndex:200, background:'var(--surface-0)', display:'flex', flexDirection:'column', animation:'sheetUp 300ms ease-out' }}>
+      <div style={{ paddingTop:52, paddingBottom:12, paddingLeft:8, paddingRight:16, display:'flex', alignItems:'center', borderBottom:'1px solid var(--gray-100)' }}>
+        <button onClick={onClose} style={{ width:44, height:44, border:'none', background:'transparent', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}><Icon name="x" size={24} color="var(--gray-700)" /></button>
+        <div style={{ fontSize:'calc(17px * var(--font-scale))', fontWeight:700, color:'var(--gray-900)' }}>본인 인증</div>
+      </div>
+      <div className="app-scroll" style={{ flex:1, padding:'24px 20px' }}>
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', marginBottom:24 }}>
+          <div style={{ width:72, height:72, borderRadius:20, background:'var(--brand-primary-light)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:14 }}>
+            <Icon name="shield" size={36} color="var(--brand-primary-dark)" />
+          </div>
+          <div style={{ fontSize:'calc(20px * var(--font-scale))', fontWeight:800, color:'var(--gray-900)' }}>쿠폰 발급 전 본인 인증</div>
+          <div style={{ fontSize:'calc(14px * var(--font-scale))', color:'var(--gray-500)', marginTop:6, lineHeight:1.5 }}>쿠폰 악용 방지를 위해 최초 1회<br/>휴대폰 본인 인증이 필요합니다.</div>
+        </div>
+        <div style={{ display:'flex', alignItems:'center', gap:11, padding:12, background:'var(--gray-50)', borderRadius:'var(--radius-lg)', marginBottom:22 }}>
+          <div style={{ width:46, flexShrink:0 }}><FoodPlaceholder special={s} ratio="1 / 1" rounded={8} label={false} /></div>
+          <div style={{ minWidth:0 }}>
+            <div style={{ fontSize:'calc(14px * var(--font-scale))', fontWeight:700, color:'var(--gray-900)' }}>{s.store}</div>
+            <div style={{ fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-500)' }}>{s.menu} · <span style={{ color:'var(--brand-primary-dark)', fontWeight:700 }}>{won(s.sale)}</span></div>
+          </div>
+        </div>
+        <label style={labelStyle}>휴대폰 번호</label>
+        <div style={{ display:'flex', gap:8, marginTop:8 }}>
+          <div style={{ flex:1, position:'relative' }}>
+            <Icon name="phone" size={18} color="var(--gray-400)" style={{ position:'absolute', left:13, top:'50%', transform:'translateY(-50%)' }} />
+            <input value={phone} readOnly disabled={step===2} inputMode="numeric" style={{ ...inputStyle, paddingLeft:40, opacity: step===2 ? 0.55 : 1 }} />
+          </div>
+          {step===1 && <Button variant="secondary" size="md" onClick={() => { setStep(2); setSecs(180); }}>인증번호 받기</Button>}
+        </div>
+        {step===2 && (
+          <div style={{ marginTop:22, animation:'floatUp 250ms ease-out' }}>
+            <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+              <label style={labelStyle}>인증번호 6자리</label>
+              <span className="tnum" style={{ fontSize:'calc(13px * var(--font-scale))', fontWeight:700, color: secs<=30 ? 'var(--danger)' : 'var(--brand-primary-dark)' }}>{mm}:{ss}</span>
+            </div>
+            <div style={{ display:'flex', gap:8, marginTop:8 }}>
+              {code.map((d, i) => (
+                <input key={i} ref={refs[i]} value={d} onChange={e => setDigit(i, e.target.value)} inputMode="numeric" maxLength={1}
+                  style={{ flex:1, minWidth:0, width:0, height:54, textAlign:'center', fontSize:'calc(22px * var(--font-scale))', fontWeight:700, color:'var(--gray-900)', border: d ? '2px solid var(--brand-primary)' : '1px solid var(--gray-200)', borderRadius:'var(--radius-lg)', background:'var(--surface-2)', fontFamily:'var(--font-mono)', outline:'none' }} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      {step===2 && (
+        <div style={{ flexShrink:0, padding:'12px 16px 26px', borderTop:'1px solid var(--gray-100)', background:'var(--surface-1)' }}>
+          <Button variant="primary" size="lg" fullWidth disabled={!filled} onClick={onVerified}>인증 완료하고 쿠폰 받기</Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CouponCelebration({ s, onDone, enabled }) {
+  useEffect(() => {
+    const t = setTimeout(onDone, enabled ? 1900 : 600);
+    return () => clearTimeout(t);
+  }, []);
+  const pct = discountPct(s);
+  return (
+    <div style={{ position:'absolute', inset:0, zIndex:300, background:'rgba(17,24,39,0.55)', backdropFilter:'blur(3px)', WebkitBackdropFilter:'blur(3px)', display:'flex', alignItems:'center', justifyContent:'center', animation:'fadeIn 200ms ease-out' }}>
+      {enabled && Array.from({length:14}).map((_,i) => (
+        <span key={i} style={{ position:'absolute', top:'38%', left:`${10+(i*6)%80}%`, width:8, height:8, borderRadius: i%2 ? 9999 : 2, background:CONFETTI[i%CONFETTI.length], animation:`confettiFall ${900+(i%5)*160}ms cubic-bezier(0.3,0.7,0.5,1) ${i*40}ms both` }} />
+      ))}
+      <div style={{ position:'relative', width:280, background:'var(--surface-2)', borderRadius:'var(--radius-xl)', padding:'30px 22px 24px', textAlign:'center', boxShadow:'var(--shadow-xl)', animation:'checkPop 500ms cubic-bezier(0.4,0,0.2,1)' }}>
+        <div style={{ position:'relative', width:80, height:80, margin:'0 auto 16px' }}>
+          {enabled && <span style={{ position:'absolute', inset:0, borderRadius:9999, background:'var(--brand-secondary)', opacity:0.3, animation:'pulseRing 900ms ease-out infinite' }} />}
+          <div style={{ position:'relative', width:80, height:80, borderRadius:9999, background:'var(--brand-secondary)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 8px 24px rgba(67,160,71,0.45)' }}>
+            <Icon name="check" size={42} color="#fff" strokeWidth={3} />
+          </div>
+        </div>
+        <div style={{ fontSize:'calc(20px * var(--font-scale))', fontWeight:800, color:'var(--gray-900)' }}>쿠폰 발급 완료!</div>
+        <div style={{ fontSize:'calc(14px * var(--font-scale))', color:'var(--gray-500)', marginTop:6 }}>{s.store} · {won(s.sale)} <span style={{ color:'var(--brand-accent)', fontWeight:700 }}>(-{pct}%)</span></div>
+        <div style={{ marginTop:14, display:'inline-flex', alignItems:'center', gap:6, fontSize:'calc(13px * var(--font-scale))', fontWeight:600, color:'var(--brand-primary-dark)', background:'var(--brand-primary-light)', padding:'7px 13px', borderRadius:'var(--radius-full)' }}>
+          <Icon name="ticket" size={15} color="var(--brand-primary-dark)" /> 내 쿠폰함으로 이동합니다
+        </div>
+      </div>
+    </div>
+  );
+}
+</script>
+
+<script type="text/babel">
+// ── coupons + QR ──────────────────────────────────────────────
+const CP_TABS = [{ id:'available', label:'사용 가능' }, { id:'used', label:'사용 완료' }, { id:'expired', label:'만료' }];
+
+function fmtCountdown(min) {
+  const h = Math.floor(min/60), m = min%60;
+  return h > 0 ? `${h}시간 ${m}분` : `${m}분`;
+}
+
+function CouponCard({ cp, special, onShowQR }) {
+  const pct = discountPct(special);
+  const dim = cp.status !== 'available';
+  return (
+    <div style={{ display:'flex', background:'var(--surface-2)', borderRadius:'var(--radius-xl)', overflow:'hidden', boxShadow:'var(--shadow-sm)', border:'1px solid var(--gray-100)', opacity: dim ? 0.62 : 1, position:'relative' }}>
+      <div style={{ width:92, flexShrink:0, position:'relative', overflow:'hidden' }}>
+        <div style={{ position:'absolute', inset:0 }}><FoodPlaceholder special={special} fill rounded={0} label={false} /></div>
+      </div>
+      <div style={{ position:'relative', width:0 }}>
+        <div style={{ position:'absolute', top:-6, left:-6, width:12, height:12, borderRadius:9999, background:'var(--surface-0)' }} />
+        <div style={{ position:'absolute', bottom:-6, left:-6, width:12, height:12, borderRadius:9999, background:'var(--surface-0)' }} />
+        <div style={{ position:'absolute', top:8, bottom:8, left:-1, borderLeft:'2px dashed var(--gray-200)' }} />
+      </div>
+      <div style={{ flex:1, minWidth:0, padding:'13px 14px', display:'flex', flexDirection:'column' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <DiscountBadge pct={pct} />
+          {cp.status==='available' && cp.expireIn != null && cp.expireIn < 60 && <span style={{ fontSize:'calc(11px * var(--font-scale))', fontWeight:700, color:'var(--warning)' }}>곧 만료</span>}
+        </div>
+        <div style={{ fontSize:'calc(16px * var(--font-scale))', fontWeight:700, color:'var(--gray-900)', marginTop:6, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{special.store}</div>
+        <div style={{ fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-500)', marginTop:1, whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{special.menu}</div>
+        <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', marginTop:9, gap:8 }}>
+          <div style={{ minWidth:0 }}>
+            <span className="tnum" style={{ fontSize:'calc(18px * var(--font-scale))', fontWeight:800, color:'var(--brand-primary-dark)' }}>{won(special.sale)}</span>
+            <div style={{ fontSize:'calc(11px * var(--font-scale))', color:'var(--gray-400)', marginTop:2 }}>
+              {cp.status==='available' && `${fmtCountdown(cp.expireIn)} 후 만료`}
+              {cp.status==='used' && `${cp.usedAt} 사용`}
+              {cp.status==='expired' && cp.expiredAt}
+            </div>
+          </div>
+          {cp.status==='available'
+            ? <Button variant="primary" size="sm" leadingIcon="qr" onClick={() => onShowQR(cp)}>QR 제시</Button>
+            : cp.status==='used'
+              ? <span style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:'calc(12px * var(--font-scale))', fontWeight:700, color:'var(--success)' }}><Icon name="check" size={15} color="var(--success)" /> 사용완료</span>
+              : <span style={{ fontSize:'calc(12px * var(--font-scale))', fontWeight:600, color:'var(--gray-400)' }}>기간 만료</span>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CouponsScreen({ coupons, getSpecial, onShowQR, onBrowse, onBell, onSettings, notiCount }) {
+  const [tab, setTab] = useState('available');
+  const list = coupons.filter(c => c.status === tab);
+  const counts = { available: coupons.filter(c=>c.status==='available').length, used: coupons.filter(c=>c.status==='used').length, expired: coupons.filter(c=>c.status==='expired').length };
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'var(--surface-0)' }}>
+      <AppHeader title="내 쿠폰함" subtitle={`사용 가능 ${counts.available}장`} onBell={onBell} onSettings={onSettings} badge={notiCount} />
+      <div style={{ display:'flex', background:'var(--surface-1)', borderBottom:'1px solid var(--gray-100)', padding:'0 8px' }}>
+        {CP_TABS.map(t => {
+          const on = tab === t.id;
+          return (
+            <button key={t.id} onClick={() => setTab(t.id)} style={{ flex:1, border:'none', background:'transparent', cursor:'pointer', padding:'13px 0 11px', position:'relative', fontFamily:'var(--font-sans)' }}>
+              <span style={{ fontSize:'calc(14px * var(--font-scale))', fontWeight: on ? 700 : 500, color: on ? 'var(--gray-900)' : 'var(--gray-400)' }}>{t.label} <span className="tnum" style={{ color: on ? 'var(--brand-primary-dark)' : 'var(--gray-400)' }}>{counts[t.id]}</span></span>
+              {on && <div style={{ position:'absolute', bottom:0, left:'22%', right:'22%', height:2.5, borderRadius:9999, background:'var(--brand-primary)' }} />}
+            </button>
+          );
+        })}
+      </div>
+      <div className="app-scroll" style={{ flex:1, padding:'14px 16px 20px' }}>
+        {list.length === 0 ? (
+          <div style={{ display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center', padding:'56px 24px' }}>
+            <div style={{ width:72, height:72, borderRadius:9999, background:'var(--gray-100)', display:'flex', alignItems:'center', justifyContent:'center', marginBottom:14 }}>
+              <Icon name="ticket" size={34} color="var(--gray-300)" />
+            </div>
+            <div style={{ fontSize:'calc(16px * var(--font-scale))', fontWeight:700, color:'var(--gray-700)' }}>
+              {tab==='available' ? '아직 발급받은 쿠폰이 없어요' : tab==='used' ? '사용한 쿠폰이 없어요' : '만료된 쿠폰이 없어요'}
+            </div>
+            {tab==='available' && <>
+              <div style={{ fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-400)', marginTop:6 }}>지금 주변 점심특선을 둘러보세요</div>
+              <div style={{ marginTop:18 }}><Button variant="primary" size="md" leadingIcon="home" onClick={onBrowse}>점심특선 보러가기</Button></div>
+            </>}
+          </div>
+        ) : (
+          <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+            {list.map((cp, i) => (
+              <div key={cp.id} style={{ animation:`floatUp 300ms ease-out ${i*50}ms both` }}>
+                <CouponCard cp={cp} special={getSpecial(cp.specialId)} onShowQR={onShowQR} />
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function QRMatrix({ seed, size=220 }) {
+  const N = 25; const cell = size/N;
+  let h = 0; for (let i=0; i<seed.length; i++) h = (h*31 + seed.charCodeAt(i)) >>> 0;
+  function rand(i) { const x = Math.sin(h + i*12.9898)*43758.5453; return x - Math.floor(x); }
+  const cells = [];
+  function finder(ox, oy) { for (let y=0; y<7; y++) for (let x=0; x<7; x++) { const on = x===0||x===6||y===0||y===6||(x>=2&&x<=4&&y>=2&&y<=4); if(on) cells.push([ox+x,oy+y]); } }
+  finder(0,0); finder(N-7,0); finder(0,N-7);
+  for (let y=0; y<N; y++) for (let x=0; x<N; x++) {
+    const inFinder = (x<8&&y<8)||(x>N-9&&y<8)||(x<8&&y>N-9);
+    if (inFinder) continue;
+    if (rand(y*N+x) > 0.55) cells.push([x,y]);
+  }
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display:'block' }}>
+      <rect width={size} height={size} fill="#fff" />
+      {cells.map(([x,y],i) => <rect key={i} x={x*cell} y={y*cell} width={cell+0.5} height={cell+0.5} fill="#111827" />)}
+    </svg>
+  );
+}
+
+function QRScreen({ cp, special, onClose, onRedeemed }) {
+  const [secs, setSecs] = useState(60);
+  const [seed, setSeed] = useState('LSL-' + cp.id + '-' + Date.now());
+  const pct = discountPct(special);
+  useEffect(() => {
+    if (secs <= 0) { setSeed('LSL-' + cp.id + '-' + Date.now()); setSecs(60); return; }
+    const t = setTimeout(() => setSecs(secs - 1), 1000);
+    return () => clearTimeout(t);
+  }, [secs]);
+  const R = 150, C = 2*Math.PI*R, off = C*(1 - secs/60);
+  const low = secs <= 10;
+  return (
+    <div style={{ position:'absolute', inset:0, zIndex:250, background:'#fff', display:'flex', flexDirection:'column', animation:'sheetUp 300ms ease-out' }}>
+      <div style={{ paddingTop:52, paddingBottom:8, paddingLeft:8, paddingRight:16, display:'flex', alignItems:'center' }}>
+        <button onClick={onClose} style={{ width:44, height:44, border:'none', background:'transparent', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center' }}><Icon name="x" size={24} color="#374151" /></button>
+      </div>
+      <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'0 28px', textAlign:'center' }}>
+        <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'#FFF3E0', color:'#ED6C02', padding:'6px 13px', borderRadius:9999, fontSize:13, fontWeight:700 }}>
+          <Icon name="shield" size={15} color="#ED6C02" /> 매장 직원에게 제시하세요
+        </div>
+        <div style={{ fontSize:24, fontWeight:800, color:'#111827', marginTop:16 }}>{special.store}</div>
+        <div style={{ fontSize:15, color:'#6B7280', marginTop:3 }}>{special.menu}</div>
+        <div style={{ display:'inline-flex', alignItems:'baseline', gap:8, marginTop:8 }}>
+          <span className="tnum" style={{ fontSize:22, fontWeight:800, color:'#F57C00' }}>{won(special.sale)}</span>
+          <span style={{ fontSize:14, fontWeight:700, color:'#FF5722' }}>-{pct}%</span>
+        </div>
+        <div style={{ position:'relative', width:320, height:320, display:'flex', alignItems:'center', justifyContent:'center', marginTop:14 }}>
+          <svg width="320" height="320" style={{ position:'absolute', transform:'rotate(-90deg)' }}>
+            <circle cx="160" cy="160" r={R} fill="none" stroke="#F3F4F6" strokeWidth="6" />
+            <circle cx="160" cy="160" r={R} fill="none" stroke={low ? '#FF5722' : '#FFA726'} strokeWidth="6" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={off} style={{ transition:'stroke-dashoffset 1s linear, stroke 200ms' }} />
+          </svg>
+          <div style={{ padding:14, background:'#fff', borderRadius:20, boxShadow:'0 8px 30px rgba(0,0,0,0.1)' }}>
+            <QRMatrix seed={seed} size={210} />
+          </div>
+        </div>
+        <div className="tnum" style={{ marginTop:18, fontSize:17, fontWeight:700, color: low ? '#D32F2F' : '#374151', display:'flex', alignItems:'center', gap:7 }}>
+          <Icon name="clock" size={18} color={low ? '#D32F2F' : '#9CA3AF'} /> 0:{String(secs).padStart(2,'0')} 후 자동 갱신
+        </div>
+        <div style={{ marginTop:4, fontSize:12, color:'#9CA3AF' }}>스크린샷 도용 방지를 위해 60초마다 코드가 바뀝니다</div>
+        <div style={{ display:'flex', gap:10, marginTop:22, width:'100%', maxWidth:320 }}>
+          <button style={{ flex:1, height:46, borderRadius:12, border:'1px solid #E5E7EB', background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', gap:7, fontSize:14, fontWeight:600, color:'#374151', cursor:'pointer', fontFamily:'var(--font-sans)' }}>
+            <Icon name="copy" size={17} color="#6B7280" /> 코드 복사
+          </button>
+        </div>
+        <button onClick={onRedeemed} style={{ marginTop:14, fontSize:12.5, color:'#9CA3AF', background:'transparent', border:'none', cursor:'pointer', textDecoration:'underline', fontFamily:'var(--font-sans)' }}>(데모) 사장님이 스캔 완료 →</button>
+      </div>
+    </div>
+  );
+}
+
+function RedeemFlash({ special, onDone, enabled }) {
+  useEffect(() => { const t = setTimeout(onDone, enabled ? 1700 : 500); return () => clearTimeout(t); }, []);
+  return (
+    <div style={{ position:'absolute', inset:0, zIndex:320, background:'var(--brand-secondary)', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', color:'#fff', textAlign:'center', animation:'fadeIn 250ms ease-out' }}>
+      <div style={{ position:'relative', width:110, height:110 }}>
+        {enabled && <span style={{ position:'absolute', inset:0, borderRadius:9999, background:'#fff', opacity:0.25, animation:'pulseRing 1000ms ease-out infinite' }} />}
+        <div style={{ width:110, height:110, borderRadius:9999, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center', animation:'checkPop 500ms cubic-bezier(0.4,0,0.2,1)', boxShadow:'0 8px 30px rgba(0,0,0,0.18)' }}>
+          <Icon name="check" size={62} color="var(--brand-secondary)" strokeWidth={3.4} />
+        </div>
+      </div>
+      <div style={{ fontSize:26, fontWeight:800, marginTop:24 }}>쿠폰 사용 완료</div>
+      <div style={{ fontSize:15, opacity:0.9, marginTop:6 }}>{special.store}</div>
+      <div className="tnum" style={{ fontSize:40, fontWeight:800, marginTop:16, letterSpacing:'-0.02em' }}>{won(special.price - special.sale)}</div>
+      <div style={{ fontSize:14, opacity:0.85, marginTop:2 }}>할인 적용</div>
+    </div>
+  );
+}
+</script>
+
+<script type="text/babel">
+// ── misc screens (explore / noti / my) ────────────────────────
+function ExploreScreen({ specials, onTapSpecial, onBell, onSettings, notiCount }) {
+  const [view, setView] = useState('map');
+  const live = specials.filter(s => s.status !== 'closed');
+  const pos = [[28,30],[58,22],[44,48],[72,40],[20,58],[64,64],[38,70],[80,62]];
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'var(--surface-0)' }}>
+      <AppHeader title="탐색" subtitle="강남 테헤란로 반경 500m" onBell={onBell} onSettings={onSettings} badge={notiCount} />
+      <div style={{ display:'flex', alignItems:'center', gap:8, padding:'10px 16px', background:'var(--surface-1)', borderBottom:'1px solid var(--gray-100)' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6, flex:1, height:38, padding:'0 12px', background:'var(--gray-100)', borderRadius:'var(--radius-full)', color:'var(--gray-400)', fontSize:'calc(13px * var(--font-scale))' }}>
+          <Icon name="search" size={16} color="var(--gray-400)" /> 매장·메뉴 검색
+        </div>
+        <div style={{ display:'flex', background:'var(--gray-100)', borderRadius:'var(--radius-full)', padding:3 }}>
+          {['map','list'].map(v => (
+            <button key={v} onClick={() => setView(v)} style={{ width:40, height:32, border:'none', borderRadius:9999, cursor:'pointer', background: view===v ? 'var(--surface-2)' : 'transparent', boxShadow: view===v ? 'var(--shadow-sm)' : 'none', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <Icon name={v} size={18} color={view===v ? 'var(--brand-primary-dark)' : 'var(--gray-400)'} />
+            </button>
+          ))}
+        </div>
+      </div>
+      {view==='map' ? (
+        <div style={{ flex:1, position:'relative', overflow:'hidden', background:'var(--gray-100)', backgroundImage:'linear-gradient(var(--gray-200) 1px, transparent 1px), linear-gradient(90deg, var(--gray-200) 1px, transparent 1px)', backgroundSize:'34px 34px' }}>
+          <div style={{ position:'absolute', top:'46%', left:0, right:0, height:12, background:'var(--gray-0)', borderTop:'1px solid var(--gray-200)', borderBottom:'1px solid var(--gray-200)' }} />
+          <div style={{ position:'absolute', top:0, bottom:0, left:'50%', width:10, background:'var(--gray-0)', borderLeft:'1px solid var(--gray-200)', borderRight:'1px solid var(--gray-200)' }} />
+          <div style={{ position:'absolute', top:'50%', left:'50%', width:230, height:230, transform:'translate(-50%,-50%)', borderRadius:9999, border:'1.5px solid rgba(255,167,38,0.5)', background:'rgba(255,167,38,0.07)' }} />
+          <div style={{ position:'absolute', top:'50%', left:'50%', transform:'translate(-50%,-50%)', width:16, height:16, borderRadius:9999, background:'var(--info)', border:'3px solid #fff', boxShadow:'0 0 0 5px rgba(25,118,210,0.22)', zIndex:2 }} />
+          {live.map((s,i) => {
+            const p = pos[i%pos.length]; const pct = discountPct(s);
+            return (
+              <button key={s.id} onClick={() => onTapSpecial(s)} style={{ position:'absolute', top:`${p[1]}%`, left:`${p[0]}%`, transform:'translate(-50%,-100%)', border:'none', background:'transparent', cursor:'pointer', zIndex:3 }}>
+                <div style={{ display:'flex', flexDirection:'column', alignItems:'center' }}>
+                  <div className="tnum" style={{ background: s.status==='closing' ? 'var(--warning)' : 'var(--brand-primary)', color:'#fff', padding:'4px 9px', borderRadius:9, fontSize:12, fontWeight:800, boxShadow:'var(--shadow-md)', whiteSpace:'nowrap' }}>{won(s.sale)}</div>
+                  <div style={{ width:0, height:0, borderLeft:'5px solid transparent', borderRight:'5px solid transparent', borderTop:`7px solid ${s.status==='closing' ? 'var(--warning)' : 'var(--brand-primary)'}` }} />
+                </div>
+              </button>
+            );
+          })}
+          <div className="tnum" style={{ position:'absolute', bottom:16, left:'50%', transform:'translateX(-50%)', background:'rgba(255,255,255,0.9)', backdropFilter:'blur(6px)', padding:'8px 14px', borderRadius:9999, fontSize:'calc(13px * var(--font-scale))', fontWeight:600, color:'var(--gray-700)', boxShadow:'var(--shadow-md)' }}>📍 주변 점심특선 {live.length}곳</div>
+        </div>
+      ) : (
+        <div className="app-scroll" style={{ flex:1, padding:'14px 16px 20px' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+            {live.map(s => (
+              <div key={s.id} onClick={() => onTapSpecial(s)} style={{ display:'flex', gap:12, padding:10, background:'var(--surface-2)', borderRadius:'var(--radius-lg)', boxShadow:'var(--shadow-sm)', border:'1px solid var(--gray-100)', cursor:'pointer', alignItems:'center' }}>
+                <div style={{ width:64, flexShrink:0 }}><FoodPlaceholder special={s} ratio="1 / 1" rounded={10} label={false} /></div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ display:'flex', alignItems:'center', gap:6 }}><StatusBadge status={s.status} size="sm" /><span style={{ fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-500)' }}>{s.dist}km</span></div>
+                  <div style={{ fontSize:'calc(15px * var(--font-scale))', fontWeight:700, color:'var(--gray-900)', marginTop:3 }}>{s.store}</div>
+                  <div style={{ fontSize:'calc(12px * var(--font-scale))', color:'var(--gray-500)' }}>{s.menu}</div>
+                </div>
+                <div style={{ textAlign:'right', flexShrink:0 }}>
+                  <div className="tnum" style={{ fontSize:'calc(17px * var(--font-scale))', fontWeight:800, color:'var(--brand-primary-dark)' }}>{won(s.sale)}</div>
+                  <div style={{ marginTop:3 }}><DiscountBadge pct={discountPct(s)} /></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const NOTIS = [
+  { id:'n1', icon:'pin', tone:'brand', title:'근처 점심특선 알림', body:'진고개 한식당이 500m 이내에 점심특선을 등록했어요.', time:'방금 전', unread:true },
+  { id:'n2', icon:'flame', tone:'accent', title:'곧 마감!', body:'그린보울 닭가슴살 포케볼 잔여 4개. 서두르세요.', time:'12분 전', unread:true },
+  { id:'n3', icon:'ticket', tone:'success', title:'쿠폰 발급 완료', body:'본죽 삼계 전복 삼계죽 쿠폰이 쿠폰함에 담겼어요.', time:'40분 전', unread:false },
+  { id:'n4', icon:'check', tone:'success', title:'쿠폰 사용 완료', body:'미도리 라멘에서 2,400원 할인받았어요.', time:'어제', unread:false },
+  { id:'n5', icon:'bell', tone:'info', title:'점심특강 공지', body:'6월 한 달간 신규 매장 등록 수수료가 면제됩니다.', time:'2일 전', unread:false },
+];
+
+function NotiScreen({ onBell, onSettings }) {
+  const [notis, setNotis] = useState(NOTIS);
+  const toneMap = { brand:{bg:'var(--brand-primary-light)',fg:'var(--brand-primary-dark)'}, accent:{bg:'var(--danger-bg)',fg:'var(--brand-accent)'}, success:{bg:'var(--success-bg)',fg:'var(--success)'}, info:{bg:'var(--info-bg)',fg:'var(--info)'} };
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'var(--surface-0)' }}>
+      <AppHeader title="알림" onBell={onBell} onSettings={onSettings} />
+      <div style={{ display:'flex', justifyContent:'flex-end', padding:'8px 16px 0' }}>
+        <button onClick={() => setNotis(notis.map(n => ({...n,unread:false})))} style={{ border:'none', background:'transparent', color:'var(--brand-primary-dark)', fontWeight:600, fontSize:'calc(13px * var(--font-scale))', cursor:'pointer', fontFamily:'var(--font-sans)' }}>모두 읽음</button>
+      </div>
+      <div className="app-scroll" style={{ flex:1, padding:'6px 16px 20px' }}>
+        <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+          {notis.map(n => {
+            const tm = toneMap[n.tone];
+            return (
+              <div key={n.id} onClick={() => setNotis(notis.map(x => x.id===n.id ? {...x,unread:false} : x))}
+                style={{ display:'flex', gap:12, padding:13, background: n.unread ? 'var(--brand-primary-light)' : 'var(--surface-2)', borderRadius:'var(--radius-lg)', border:'1px solid var(--gray-100)', cursor:'pointer', position:'relative' }}>
+                {n.unread && <span style={{ position:'absolute', top:14, left:4, width:6, height:6, borderRadius:9999, background:'var(--brand-accent)' }} />}
+                <div style={{ width:38, height:38, borderRadius:10, background:tm.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <Icon name={n.icon} size={20} color={tm.fg} />
+                </div>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', gap:8 }}>
+                    <span style={{ fontSize:'calc(14px * var(--font-scale))', fontWeight:700, color:'var(--gray-900)' }}>{n.title}</span>
+                    <span style={{ fontSize:'calc(11px * var(--font-scale))', color:'var(--gray-400)', flexShrink:0 }}>{n.time}</span>
+                  </div>
+                  <div style={{ fontSize:'calc(13px * var(--font-scale))', color:'var(--gray-600)', marginTop:3, lineHeight:1.45 }}>{n.body}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function MyScreen({ tweaks, setTweak, onBell, onSettings, couponCount }) {
+  const scales = [['표준',1],['큰 글씨',1.25],['매우 큼',1.5]];
+  return (
+    <div style={{ height:'100%', display:'flex', flexDirection:'column', background:'var(--surface-0)' }}>
+      <AppHeader title="마이" onBell={onBell} onSettings={onSettings} />
+      <div className="app-scroll" style={{ flex:1, padding:'16px 16px 24px' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:14, padding:16, background:'var(--surface-2)', borderRadius:'var(--radius-xl)', boxShadow:'var(--shadow-sm)', border:'1px solid var(--gray-100)' }}>
+          <div style={{ width:54, height:54, borderRadius:9999, background:'linear-gradient(135deg, var(--brand-primary), var(--brand-accent))', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>🧑‍💼</div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:'calc(17px * var(--font-scale))', fontWeight:800, color:'var(--gray-900)' }}>김대리</div>
+            <div style={{ display:'inline-flex', alignItems:'center', gap:4, fontSize:'calc(12px * var(--font-scale))', color:'var(--success)', fontWeight:600, marginTop:3 }}>
+              <Icon name="shield" size={13} color="var(--success)" /> 본인 인증 완료
+            </div>
+          </div>
+        </div>
+        <div style={{ display:'flex', gap:10, marginTop:12 }}>
+          {[['보유 쿠폰',couponCount+'장'],['이번 달 절약','14,200원'],['방문 매장','7곳']].map(([k,v]) => (
+            <div key={k} style={{ flex:1, padding:13, background:'var(--surface-2)', borderRadius:'var(--radius-lg)', border:'1px solid var(--gray-100)', textAlign:'center' }}>
+              <div className="tnum" style={{ fontSize:'calc(18px * var(--font-scale))', fontWeight:800, color:'var(--brand-primary-dark)' }}>{v}</div>
+              <div style={{ fontSize:'calc(11px * var(--font-scale))', color:'var(--gray-500)', marginTop:3 }}>{k}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize:'calc(12px * var(--font-scale))', fontWeight:700, color:'var(--gray-400)', textTransform:'uppercase', letterSpacing:'0.06em', margin:'22px 6px 8px' }}>화면 설정</div>
+        <div style={{ background:'var(--surface-2)', borderRadius:'var(--radius-lg)', border:'1px solid var(--gray-100)', overflow:'hidden' }}>
+          <div style={{ padding:'14px 16px', borderBottom:'1px solid var(--gray-100)' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:11 }}>
+              <Icon name="user" size={20} color="var(--gray-500)" />
+              <span style={{ fontSize:'calc(15px * var(--font-scale))', color:'var(--gray-800)', fontWeight:500 }}>큰 글씨 모드</span>
+            </div>
+            <div style={{ display:'flex', gap:6 }}>
+              {scales.map(([lbl,val]) => {
+                const on = tweaks && tweaks.fontScale === val;
+                return <button key={val} onClick={() => setTweak && setTweak('fontScale', val)} style={{ flex:1, padding:'9px 0', borderRadius:'var(--radius-md)', border: on ? '1.5px solid var(--brand-primary)' : '1px solid var(--gray-200)', background: on ? 'var(--brand-primary-light)' : 'var(--surface-2)', color: on ? 'var(--brand-primary-dark)' : 'var(--gray-600)', fontWeight: on ? 700 : 500, fontSize:'calc(13px * var(--font-scale))', cursor:'pointer', fontFamily:'var(--font-sans)' }}>{lbl}</button>;
+              })}
+            </div>
+          </div>
+          {[['settings','다크 모드','dark'],['bell','점심시간 푸시 알림','push']].map(([icon,label,key],idx,arr) => (
+            <div key={key} style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 16px', borderBottom: idx<arr.length-1 ? '1px solid var(--gray-100)' : 'none' }}>
+              <Icon name={icon} size={20} color="var(--gray-500)" />
+              <span style={{ flex:1, fontSize:'calc(15px * var(--font-scale))', color:'var(--gray-800)', fontWeight:500 }}>{label}</span>
+              <button onClick={() => setTweak && setTweak(key, !(tweaks && tweaks[key]))} style={{ width:48, height:28, borderRadius:9999, border:'none', cursor:'pointer', background: tweaks && tweaks[key] ? 'var(--brand-primary)' : 'var(--gray-300)', position:'relative', transition:'background var(--motion-normal)', flexShrink:0 }}>
+                <span style={{ position:'absolute', top:3, left: tweaks && tweaks[key] ? 23 : 3, width:22, height:22, borderRadius:9999, background:'#fff', transition:'left var(--motion-normal)', boxShadow:'0 1px 3px rgba(0,0,0,0.3)' }} />
+              </button>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize:'calc(12px * var(--font-scale))', fontWeight:700, color:'var(--gray-400)', textTransform:'uppercase', letterSpacing:'0.06em', margin:'22px 6px 8px' }}>계정</div>
+        <div style={{ background:'var(--surface-2)', borderRadius:'var(--radius-lg)', border:'1px solid var(--gray-100)', overflow:'hidden' }}>
+          {[['ticket','쿠폰 사용 내역'],['heart','즐겨찾기'],['shield','개인정보 · 약관']].map(([icon,label],idx,arr) => (
+            <div key={label} style={{ display:'flex', alignItems:'center', gap:12, padding:'14px 16px', borderBottom: idx<arr.length-1 ? '1px solid var(--gray-100)' : 'none' }}>
+              <Icon name={icon} size={20} color="var(--gray-500)" />
+              <span style={{ flex:1, fontSize:'calc(15px * var(--font-scale))', color:'var(--gray-800)', fontWeight:500 }}>{label}</span>
+              <Icon name="chevRight" size={18} color="var(--gray-300)" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+</script>
+
+<script type="text/babel">
+// ── gallery ───────────────────────────────────────────────────
+const W = 402, H = 874;
+const noop = () => {};
+const getSpecial = id => SPECIALS.find(s => s.id === id);
+const sortedByDist = [...SPECIALS].sort((a,b) => a.dist - b.dist);
+const galCoupons = [
+  { id:'g1', specialId:'sp01', status:'available', issuedAt:'방금', expireIn:168 },
+  ...PRESET_COUPONS,
+];
+const availQR = { id:'g1', specialId:'sp01', status:'available', issuedAt:'방금', expireIn:168 };
+
+function Phone({ dark=false, fontScale=1, children }) {
+  return (
+    <IOSDevice dark={dark}>
+      <div className="app-screen" data-theme={dark ? 'dark' : 'light'} style={{ '--font-scale': fontScale }}>
+        {children}
+      </div>
+    </IOSDevice>
+  );
+}
+
+// Simple layout: horizontal scroll per section
+function SectionRow({ title, subtitle, children }) {
+  return (
+    <div style={{ marginBottom:80 }}>
+      <div style={{ padding:'0 60px 32px' }}>
+        <div style={{ fontSize:28, fontWeight:600, color:'rgba(40,30,20,0.85)', letterSpacing:-0.4, marginBottom:6 }}>{title}</div>
+        {subtitle && <div style={{ fontSize:16, color:'rgba(60,50,40,0.6)' }}>{subtitle}</div>}
+      </div>
+      <div style={{ display:'flex', gap:48, padding:'0 60px', alignItems:'flex-start', overflowX:'auto', paddingBottom:32 }}>
+        {React.Children.map(children, (child, i) => (
+          <div key={i} style={{ flexShrink:0 }}>
+            <div style={{ fontSize:13, fontWeight:500, color:'rgba(60,50,40,0.7)', marginBottom:10, paddingLeft:2 }}>{child.props['data-label']}</div>
+            <div style={{ borderRadius:2, boxShadow:'0 1px 3px rgba(0,0,0,0.08),0 4px 16px rgba(0,0,0,0.06)', overflow:'hidden', width:W, height:H }}>
+              {child}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const feedProps = { specials:sortedByDist, sort:'거리순', onSort:noop, onTapSpecial:noop, onBell:noop, onSettings:noop, notiCount:2 };
+
+function Gallery() {
+  return (
+    <div style={{ minHeight:'100vh', background:'#ECECE7', fontFamily:'-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif' }}>
+      {/* grid bg */}
+      <div style={{ position:'fixed', inset:0, backgroundImage:`url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M120 0H0v120' fill='none' stroke='rgba(0,0,0,0.06)' stroke-width='1'/%3E%3C/svg%3E")`, backgroundSize:'120px 120px', pointerEvents:'none', zIndex:0 }} />
+      <div style={{ position:'relative', zIndex:1, padding:'60px 0 80px' }}>
+
+        <SectionRow title="① 메인 피드" subtitle="카드 레이아웃 3가지 변형 + 다크 모드">
+          <div data-label="표준 — 사진 상단"><Phone><FeedScreen {...feedProps} cardLayout="standard" /></Phone></div>
+          <div data-label="컴팩트 — 리스트형"><Phone><FeedScreen {...feedProps} cardLayout="compact" /></Phone></div>
+          <div data-label="매거진 — 풀블리드"><Phone><FeedScreen {...feedProps} cardLayout="magazine" /></Phone></div>
+          <div data-label="표준 — 다크 모드"><Phone dark><FeedScreen {...feedProps} cardLayout="standard" /></Phone></div>
+        </SectionRow>
+
+        <SectionRow title="② 쿠폰 발급 플로우" subtitle="특선 상세 → 본인 인증 → 발급 완료">
+          <div data-label="점심특선 상세"><Phone><DetailScreen s={SPECIALS[0]} onBack={noop} onGetCoupon={noop} soldOut={false} /></Phone></div>
+          <div data-label="본인 인증 — 번호 입력"><Phone><VerifyScreen s={SPECIALS[0]} onClose={noop} onVerified={noop} initialStep={1} /></Phone></div>
+          <div data-label="본인 인증 — 인증번호"><Phone><VerifyScreen s={SPECIALS[0]} onClose={noop} onVerified={noop} initialStep={2} initialCode={['4','9','2','7','1','5']} /></Phone></div>
+          <div data-label="쿠폰 발급 완료 · celebration">
+            <Phone>
+              <FeedScreen {...feedProps} cardLayout="standard" />
+              <CouponCelebration s={SPECIALS[0]} enabled={true} onDone={noop} />
+            </Phone>
+          </div>
+        </SectionRow>
+
+        <SectionRow title="③ 쿠폰함 · QR 사용" subtitle="발급된 쿠폰 → QR 제시 → 사용 완료">
+          <div data-label="내 쿠폰함 — 3탭"><Phone><CouponsScreen coupons={galCoupons} getSpecial={getSpecial} onShowQR={noop} onBrowse={noop} onBell={noop} onSettings={noop} notiCount={2} /></Phone></div>
+          <div data-label="QR 제시 · 60초 카운트다운"><Phone><QRScreen cp={availQR} special={getSpecial(availQR.specialId)} onClose={noop} onRedeemed={noop} /></Phone></div>
+          <div data-label="쿠폰 사용 완료 플래시"><Phone><RedeemFlash special={SPECIALS[0]} enabled={true} onDone={noop} /></Phone></div>
+        </SectionRow>
+
+        <SectionRow title="④ 나머지 탭" subtitle="탐색 · 알림 · 마이">
+          <div data-label="탐색 — 지도"><Phone><ExploreScreen specials={sortedByDist} onTapSpecial={noop} onBell={noop} onSettings={noop} notiCount={2} /></Phone></div>
+          <div data-label="알림 센터"><Phone><NotiScreen onBell={noop} onSettings={noop} /></Phone></div>
+          <div data-label="마이 · 설정"><Phone><MyScreen tweaks={{ fontScale:1, dark:false, push:true }} setTweak={noop} onBell={noop} onSettings={noop} couponCount={2} /></Phone></div>
+          <div data-label="마이 — 다크 모드"><Phone dark><MyScreen tweaks={{ fontScale:1, dark:true, push:true }} setTweak={noop} onBell={noop} onSettings={noop} couponCount={2} /></Phone></div>
+        </SectionRow>
+
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('gallery-root')).render(<Gallery />);
+</script>
+</body>
+</html>

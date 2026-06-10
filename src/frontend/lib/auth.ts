@@ -26,11 +26,11 @@ export async function comparePassword(password: string, hash: string): Promise<b
 }
 
 export function generateAccessToken(payload: Omit<TokenPayload, 'iat' | 'exp'>): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_ACCESS_EXPIRES_IN });
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_ACCESS_EXPIRES_IN as any });
 }
 
 export function generateRefreshToken(userId: string): string {
-  return jwt.sign({ sub: userId, type: 'refresh' }, JWT_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN });
+  return jwt.sign({ sub: userId, type: 'refresh' }, JWT_SECRET, { expiresIn: JWT_REFRESH_EXPIRES_IN as any });
 }
 
 export function generateQrToken(couponId: string, userId: string): string {
@@ -48,4 +48,9 @@ export function verifyToken(token: string): any {
   } catch (err) {
     return null;
   }
+}
+
+// throws on invalid/expired token
+export function verifyAccessToken(token: string): TokenPayload {
+  return jwt.verify(token, JWT_SECRET) as TokenPayload;
 }

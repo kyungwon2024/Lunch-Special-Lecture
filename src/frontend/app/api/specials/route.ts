@@ -27,6 +27,7 @@ export async function GET() {
       )
     `)
     .eq('status', 'PUBLISHED')
+    .gt('expires_at', new Date().toISOString())   // I-005: 만료된 특선 제외
     .order('discount_rate', { ascending: false });
 
   if (error) {

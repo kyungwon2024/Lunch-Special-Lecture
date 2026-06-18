@@ -63,7 +63,7 @@ export async function POST(req: NextRequest) {
   // 특선 잔여 수량 확인
   const { data: special, error: spErr } = await sb
     .from('lunch_specials')
-    .select('id, total_quantity, status, expires_at')
+    .select('id, store_id, total_quantity, status, expires_at')
     .eq('id', specialId)
     .single();
 
@@ -91,6 +91,7 @@ export async function POST(req: NextRequest) {
     .insert({
       user_id: payload.sub,
       lunch_special_id: specialId,
+      store_id: special.store_id,   // I-006: coupons.store_id NOT NULL — 특선의 매장 FK 전파
       status: 'ISSUED',
       issued_at: new Date().toISOString(),
       expires_at: expiresAt.toISOString(),

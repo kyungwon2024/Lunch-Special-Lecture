@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>점심특강 - 사용자 화면설계서</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  @font-face { font-family: 'Pretendard'; src: url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css'); }
+  * { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif; box-sizing: border-box; }
+  body { background: #f8f9fa; margin: 0; }
+
+  .tab-btn { transition: all 0.15s; background: #fff; border: none; cursor: pointer; }
+  .tab-btn:hover { background: #e9ecef; }
+  .tab-btn.active { background: #343a40; color: #fff; }
+
+  .screen-section { scroll-margin-top: 48px; position: relative; z-index: 1; }
+
+  /* === BADGES (grayscale) === */
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 9999px; font-size: 11px; font-weight: 600; }
+  .badge-dark { background: #343a40; color: #fff; }
+  .badge-light { background: #e9ecef; color: #495057; }
+
+  /* === META BOX === */
+  .screen-id-badge { display: inline-flex; align-items: center; padding: 3px 12px; background: #fff3e0; border: 1px solid #ffcc80; border-radius: 6px; font-size: 12px; font-weight: 700; color: #e65100; margin-right: 8px; }
+  .meta-box { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+  .meta-box .meta-label { font-size: 11px; color: #adb5bd; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+  .meta-box .meta-value { font-size: 13px; color: #343a40; margin-top: 2px; }
+
+  /* === NUMBERED INDICATORS === */
+  .indicator { position: absolute; z-index: 9999; width: 22px; height: 22px; border-radius: 50%; background: #e67700; color: #fff; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; line-height: 1; box-shadow: 0 2px 6px rgba(230,119,0,0.35); }
+  .ind-container { position: relative; overflow: visible !important; }
+
+  /* === DESCRIPTION TABLE === */
+  .desc-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 0; }
+  .desc-table th { background: #343a40; color: #fff; padding: 8px 10px; text-align: left; font-size: 11px; border: 1px solid #343a40; }
+  .desc-table td { padding: 8px 10px; border: 1px solid #dee2e6; color: #343a40; vertical-align: top; line-height: 1.5; }
+  .desc-table tr:nth-child(even) td { background: #f8f9fa; }
+  .desc-table .num { font-weight: 700; text-align: center; width: 1%; white-space: nowrap; color: #e67700; }
+  .desc-table th:last-child, .desc-table td:last-child { width: 240px; min-width: 240px; }
+
+  /* === RIGHT PANEL LAYOUT === */
+  .screen-section:not(#cover-page) { display: grid; grid-template-columns: 1fr 400px; grid-template-rows: auto 1fr; }
+  .screen-section:not(#cover-page) .meta-box { grid-column: 1 / -1; }
+  .screen-section:not(#cover-page) .wireframe-wrap { grid-column: 1; grid-row: 2; }
+  .screen-section:not(#cover-page) .desc-wrap { grid-column: 2; grid-row: 2; position: sticky; top: 52px; max-height: calc(100vh - 60px); overflow-y: auto; margin: 0 !important; padding: 16px; border-left: 2px solid #dee2e6; background: #fff; align-self: start; }
+  .desc-wrap h3 { font-size: 14px !important; margin: 0 0 10px 0 !important; }
+
+  /* === DOWNLOAD BUTTONS === */
+  .download-btns { position: absolute; top: 60px; right: 32px; display: flex; gap: 8px; z-index: 10; }
+  .download-btns button { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #ffe0b2; padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+  .download-btns button:hover { background: rgba(255,255,255,0.22); color: #fff; }
+
+  /* ===================================================================
+     MOBILE DEVICE FRAME — PPTX-safe: solid colors, fixed px, no gradient/calc/aspect-ratio
+     점심특강 brand: orange #FF5722 / accent green #43A047 / red #E53935
+     =================================================================== */
+  .device { width: 360px; height: 660px; background: #F1F5F9; border: 8px solid #1E293B; border-radius: 28px; position: relative; overflow: hidden; }
+  .hdr { position: absolute; left: 0; top: 0; width: 100%; height: 48px; background: #FFFFFF; border-bottom: 1px solid #E2E8F0; }
+  .hdr-logo  { position: absolute; left: 14px; top: 13px; font-size: 16px; font-weight: 700; color: #FF5722; }
+  .hdr-title { position: absolute; left: 46px; top: 14px; font-size: 15px; font-weight: 700; color: #0F172A; }
+  .hdr-back  { position: absolute; left: 12px; top: 12px; width: 24px; height: 24px; border: 1px solid #CBD5E1; border-radius: 6px; color: #334155; font-size: 14px; text-align: center; line-height: 22px; }
+  .hdr-ic    { position: absolute; top: 12px; width: 26px; height: 26px; border: 1px solid #E2E8F0; border-radius: 7px; background: #F8FAFC; color: #475569; font-size: 11px; text-align: center; line-height: 25px; }
+  .cnt       { position: absolute; width: 16px; height: 16px; border-radius: 8px; background: #FF5722; color: #fff; font-size: 9px; font-weight: 700; text-align: center; line-height: 16px; }
+  .bbar { position: absolute; left: 0; bottom: 0; width: 100%; height: 56px; background: #FFFFFF; border-top: 1px solid #E2E8F0; }
+
+  .cover-img { position: absolute; border-radius: 8px; background: #FFE0B2; }
+  .btn-pri   { background: #FF5722; color: #FFFFFF; border-radius: 9px; font-size: 13px; font-weight: 600; text-align: center; }
+  .btn-sec   { background: #FFFFFF; color: #FF5722; border: 1px solid #FF5722; border-radius: 9px; font-size: 13px; font-weight: 600; text-align: center; }
+  .btn-ghost { background: #FFFFFF; color: #64748B; border: 1px solid #E2E8F0; border-radius: 9px; font-size: 13px; font-weight: 600; text-align: center; }
+  .btn-kakao { background: #FEE500; color: #3C1E1E; border-radius: 9px; font-size: 13px; font-weight: 700; text-align: center; }
+  .btn-naver { background: #03C75A; color: #FFFFFF; border-radius: 9px; font-size: 13px; font-weight: 700; text-align: center; }
+  .card-box  { position: absolute; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; }
+  .inp       { position: absolute; background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 9px; color: #94A3B8; font-size: 12px; line-height: 40px; padding-left: 12px; height: 42px; }
+  .pill      { position: absolute; background: #FFFFFF; border: 1px solid #CBD5E1; border-radius: 16px; color: #475569; font-size: 11px; text-align: center; }
+  .pill-on   { position: absolute; background: #FF5722; border-radius: 16px; color: #FFFFFF; font-size: 11px; font-weight: 600; text-align: center; }
+  .tagx      { position: absolute; background: #F1F5F9; border-radius: 6px; color: #475569; font-size: 10px; text-align: center; }
+  .bdg-disc  { position: absolute; background: #E53935; border-radius: 6px; color: #FFFFFF; font-size: 11px; font-weight: 700; text-align: center; }
+  .bdg-open  { position: absolute; background: #E8F5E9; border-radius: 6px; color: #2E7D32; font-size: 10px; font-weight: 600; text-align: center; }
+  .bdg-soon  { position: absolute; background: #FFF3E0; border-radius: 6px; color: #E65100; font-size: 10px; font-weight: 600; text-align: center; }
+  .bn-info   { position: absolute; background: #FFF3E0; border-radius: 8px; color: #E65100; font-size: 11px; line-height: 1.45; padding: 8px 10px; }
+  .bn-ok     { position: absolute; background: #E8F5E9; border-radius: 8px; color: #2E7D32; font-size: 11px; line-height: 1.45; padding: 8px 10px; }
+  .divln     { position: absolute; background: #E2E8F0; height: 1px; }
+  .txt       { position: absolute; }
+  .navic     { position: absolute; bottom: 24px; width: 24px; height: 22px; border: 1px solid #CBD5E1; border-radius: 6px; background: #F8FAFC; }
+  .navic-on  { position: absolute; bottom: 24px; width: 24px; height: 22px; border-radius: 6px; background: #FF5722; }
+  .navlb     { position: absolute; bottom: 7px; width: 56px; font-size: 9px; text-align: center; color: #94A3B8; }
+  .navlb-on  { position: absolute; bottom: 7px; width: 56px; font-size: 9px; font-weight: 700; text-align: center; color: #FF5722; }
+  .tgl-on    { position: absolute; width: 40px; height: 22px; border-radius: 11px; background: #43A047; }
+  .tgl-off   { position: absolute; width: 40px; height: 22px; border-radius: 11px; background: #CBD5E1; }
+  .tgl-kn-on { position: absolute; width: 18px; height: 18px; border-radius: 9px; background: #FFFFFF; }
+  .tgl-kn-of { position: absolute; width: 18px; height: 18px; border-radius: 9px; background: #FFFFFF; }
+  .qr        { position: absolute; background: #FFFFFF; border: 2px solid #1E293B; border-radius: 10px; }
+  .qrdot     { position: absolute; background: #1E293B; }
+
+  @media print {
+    @page { size: landscape; margin: 8mm; }
+    .no-print, .download-btns { display: none !important; }
+    body { background: #fff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .screen-section { page-break-before: always; position: static !important; z-index: auto !important; scroll-margin-top: 0 !important; }
+    .screen-section:not(#cover-page) { display: grid !important; grid-template-columns: 1fr 360px !important; }
+    .desc-wrap { position: static !important; max-height: none !important; overflow: visible !important; }
+    .wireframe-wrap { overflow: hidden !important; }
+    .meta-box { margin: 0 24px !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== COVER ==================== -->
+<div id="cover-page" class="screen-section active">
+  <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:#4A2515; position:relative;">
+    <div class="download-btns no-print">
+      <button id="btn-pdf" onclick="downloadPDF(event)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+        PDF
+      </button>
+      <!-- BEGIN sb-creator-pptx button (auto-injected) -->
+<!-- sb-creator-pptx 다운로드 버튼 (커버 영역 내부에 PDF 버튼 옆으로 삽입) -->
+<button id="btn-pptx" onclick="downloadPPTX(event)">
+  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+  PPTX
+</button>
+<span class="progress-text" id="download-progress" style="display:none; font-size:11px; color:#adb5bd; align-self:center; white-space:nowrap;"></span>
+<!-- END sb-creator-pptx button -->
+    </div>
+    <div style="text-align:center; color:#fff; max-width:820px; padding:40px;">
+      <div style="font-size:14px; letter-spacing:4px; color:#E9C9B5; margin-bottom:20px; font-weight:600;">SCREEN DESIGN DOCUMENT</div>
+      <h1 style="font-size:42px; font-weight:700; margin:0 0 12px 0; line-height:1.3;">점심특강 사용자 화면설계서</h1>
+      <div style="width:80px; height:3px; background:#FF7043; margin:24px auto;"></div>
+      <p style="font-size:15px; color:#E9C9B5; line-height:1.8; margin-bottom:36px;">강남 테헤란로 직장인 점심 할인 쿠폰 플랫폼 — 사용자(USR) 파트 핵심 10화면. 모바일 앱(iOS/Android) 디바이스 프레임 와이어프레임.</p>
+      <div style="background:#5E3320; border-radius:12px; padding:28px; text-align:left; margin-bottom:36px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; font-size:13px;">
+          <div><span style="color:#C99B82;">Project</span><br><span style="color:#FFFFFF; font-weight:600;">점심특강 (Lunch Special Lecture)</span></div>
+          <div><span style="color:#C99B82;">Document Type</span><br><span style="color:#FFFFFF; font-weight:600;">Screen Design (Wireframe)</span></div>
+          <div><span style="color:#C99B82;">Version</span><br><span style="color:#FFFFFF; font-weight:600;">v1.0</span></div>
+          <div><span style="color:#C99B82;">Date</span><br><span style="color:#FFFFFF; font-weight:600;">2026-06-19</span></div>
+          <div><span style="color:#C99B82;">Total Screens</span><br><span style="color:#FFFFFF; font-weight:600;">10 (User / P0)</span></div>
+          <div><span style="color:#C99B82;">Platform</span><br><span style="color:#FFFFFF; font-weight:600;">Mobile App (402×874)</span></div>
+        </div>
+      </div>
+      <h3 style="font-size:16px; font-weight:600; margin-bottom:16px; color:#E9C9B5;">Screen List</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:6px; text-align:left; font-size:13px;">
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-011</span> 회원가입</div>
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-008</span> 본인 인증</div>
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-005</span> 메인 피드</div>
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-001</span> 메인 지도</div>
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-004</span> 검색</div>
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-006</span> 점심특선 상세</div>
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-007</span> 내 쿠폰함</div>
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-009</span> 쿠폰 QR 제시</div>
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-010</span> 알림 센터</div>
+        <div style="padding:8px 14px; background:#5E3320; border-radius:6px; color:#E9C9B5;"><span style="color:#FFFFFF; font-weight:600;">SCR-USR-014</span> 설정</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== TAB NAV ==================== -->
+<div id="tab-nav" class="no-print" style="position:fixed; top:0; left:0; right:0; z-index:1000; background:#fff; border-bottom:1px solid #dee2e6; padding:8px 16px; overflow-x:auto; white-space:nowrap; display:flex; align-items:center;">
+  <button class="tab-btn active" onclick="showScreen('cover-page',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px; font-weight:500;">Cover</button>
+  <button class="tab-btn" onclick="showScreen('scr-011',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">011 회원가입</button>
+  <button class="tab-btn" onclick="showScreen('scr-008',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">008 본인인증</button>
+  <button class="tab-btn" onclick="showScreen('scr-005',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">005 메인피드</button>
+  <button class="tab-btn" onclick="showScreen('scr-001',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">001 메인지도</button>
+  <button class="tab-btn" onclick="showScreen('scr-004',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">004 검색</button>
+  <button class="tab-btn" onclick="showScreen('scr-006',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">006 특선상세</button>
+  <button class="tab-btn" onclick="showScreen('scr-007',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">007 쿠폰함</button>
+  <button class="tab-btn" onclick="showScreen('scr-009',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">009 QR제시</button>
+  <button class="tab-btn" onclick="showScreen('scr-010',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">010 알림</button>
+  <button class="tab-btn" onclick="showScreen('scr-014',this)" style="padding:6px 12px; border-radius:6px; font-size:12px; cursor:pointer; margin-right:2px;">014 설정</button>
+</div>
+
+<!-- ==================== SCR-USR-011 회원가입 ==================== -->
+<div id="scr-011" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-011</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">회원가입</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/signup</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-9001 소셜 OAuth + 본인 인증</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="hdr"></div>
+        <div class="hdr-logo">점심특강</div>
+        <div class="txt" style="left:24px; top:90px; width:300px; font-size:22px; font-weight:700; color:#0F172A;">환영합니다</div>
+        <div class="txt" style="left:24px; top:124px; width:300px; font-size:13px; color:#64748B;">3초 만에 시작하고 점심 할인 받기</div>
+        <div class="btn-kakao" style="position:absolute; left:24px; top:172px; width:312px; height:48px; line-height:48px;">카카오로 시작하기</div>
+        <div class="btn-naver" style="position:absolute; left:24px; top:232px; width:312px; height:48px; line-height:48px;">네이버로 시작하기</div>
+        <div class="btn-ghost" style="position:absolute; left:24px; top:292px; width:312px; height:48px; line-height:48px;">휴대폰 번호로 시작하기</div>
+        <div class="divln" style="left:24px; top:372px; width:312px;"></div>
+        <div class="card-box" style="left:24px; top:400px; width:312px; height:64px;"></div>
+        <div class="txt" style="left:40px; top:414px; width:20px; height:20px; border:1px solid #FF5722; border-radius:5px; background:#FF5722; color:#fff; font-size:13px; text-align:center; line-height:20px;">✓</div>
+        <div class="txt" style="left:72px; top:412px; width:252px; font-size:12px; color:#334155;">[필수] 이용약관 및 개인정보 처리방침 동의</div>
+        <div class="txt" style="left:72px; top:434px; width:252px; font-size:11px; color:#94A3B8;">[선택] 마케팅 정보 수신 동의</div>
+        <div class="bn-info" style="left:24px; top:484px; width:312px; height:44px;">가입 후 휴대폰 본인 인증 1회로 쿠폰 발급이 활성화됩니다.</div>
+      </div>
+      <div class="indicator" style="left:6px; top:14px;">1</div>
+      <div class="indicator" style="left:30px; top:182px;">2</div>
+      <div class="indicator" style="left:30px; top:302px;">3</div>
+      <div class="indicator" style="left:36px; top:412px;">4</div>
+      <div class="indicator" style="left:30px; top:492px;">5</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>로고</td><td>점심특강 브랜드. 가입 진입점.</td></tr>
+        <tr><td class="num">2</td><td>소셜 로그인</td><td>카카오/네이버 OAuth. 콜백 → 신규 사용자 생성 → JWT 발급.</td></tr>
+        <tr><td class="num">3</td><td>휴대폰 가입</td><td>OAuth 실패 시 폴백. 휴대폰 직접 가입.</td></tr>
+        <tr><td class="num">4</td><td>약관 동의</td><td>필수 약관 미동의 시 가입 버튼 비활성. 마케팅은 선택.</td></tr>
+        <tr><td class="num">5</td><td>안내 배너</td><td>가입 후 본인 인증(SCR-USR-008) 유도.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SCR-USR-008 본인 인증 ==================== -->
+<div id="scr-008" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-008</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">본인 인증</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/auth/verify</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-0302 KISA 휴대폰 인증(1회)</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="hdr"></div>
+        <div class="hdr-back">‹</div>
+        <div class="hdr-title">본인 인증</div>
+        <div class="txt" style="left:24px; top:80px; width:312px; font-size:18px; font-weight:700; color:#0F172A;">휴대폰 번호를 입력해주세요</div>
+        <div class="txt" style="left:24px; top:110px; width:312px; font-size:12px; color:#64748B;">쿠폰 도용 방지를 위해 최초 1회만 인증합니다</div>
+        <div class="txt" style="left:24px; top:150px; font-size:11px; color:#64748B;">휴대폰 번호</div>
+        <div class="inp" style="left:24px; top:170px; width:218px;">010-1234-5678</div>
+        <div class="btn-pri" style="position:absolute; left:250px; top:170px; width:86px; height:42px; line-height:42px;">인증 요청</div>
+        <div class="txt" style="left:24px; top:230px; font-size:11px; color:#64748B;">인증번호 6자리</div>
+        <div class="inp" style="left:24px; top:250px; width:312px; letter-spacing:8px;">_ _ _ _ _ _</div>
+        <div class="txt" style="left:296px; top:262px; width:48px; font-size:12px; font-weight:700; color:#E53935;">04:32</div>
+        <div class="bn-info" style="left:24px; top:310px; width:312px; height:42px;">인증번호가 오지 않으면 [인증 요청]을 다시 눌러주세요.</div>
+        <div class="btn-pri" style="position:absolute; left:24px; bottom:24px; width:312px; height:50px; line-height:50px; font-size:15px;">확인</div>
+      </div>
+      <div class="indicator" style="left:6px; top:14px;">1</div>
+      <div class="indicator" style="left:218px; top:174px;">2</div>
+      <div class="indicator" style="left:330px; top:174px;">3</div>
+      <div class="indicator" style="left:30px; top:254px;">4</div>
+      <div class="indicator" style="left:330px; top:258px;">5</div>
+      <div class="indicator" style="left:30px; top:600px;">6</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>뒤로가기</td><td>이전 단계(가입)로 복귀.</td></tr>
+        <tr><td class="num">2</td><td>휴대폰 입력</td><td>숫자 키패드. 형식 자동 하이픈.</td></tr>
+        <tr><td class="num">3</td><td>인증 요청</td><td>KISA 인증 SMS 발송. 동일 번호 재인증 시 우회.</td></tr>
+        <tr><td class="num">4</td><td>인증번호</td><td>6자리 입력. 자동 포커스 이동.</td></tr>
+        <tr><td class="num">5</td><td>타이머</td><td>5분 카운트다운. 만료 시 재요청 안내.</td></tr>
+        <tr><td class="num">6</td><td>확인</td><td>검증 성공 → user.verified=true → 원래 흐름 복귀.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SCR-USR-005 메인 피드 ==================== -->
+<div id="scr-005" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-005</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">메인 피드 (점심특선)</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-0201~205, F-0207</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="hdr"></div>
+        <div class="hdr-logo">점심특강</div>
+        <div class="hdr-ic" style="right:48px;">알림</div>
+        <div class="cnt" style="right:40px; top:8px;">2</div>
+        <div class="hdr-ic" style="right:14px;">설정</div>
+        <div class="txt" style="left:14px; top:56px; width:330px; font-size:11px; color:#64748B;">강남 테헤란로 · 점심특선 26곳</div>
+        <div class="pill-on" style="left:14px; top:78px; width:64px; height:28px; line-height:28px;">거리순</div>
+        <div class="pill" style="left:86px; top:78px; width:56px; height:28px; line-height:26px;">필터</div>
+        <div class="pill" style="left:150px; top:78px; width:72px; height:28px; line-height:26px;">1인좌석</div>
+        <div class="card-box" style="left:14px; top:120px; width:332px; height:230px;"></div>
+        <div class="cover-img" style="left:14px; top:120px; width:332px; height:120px; border-radius:12px 12px 0 0;"></div>
+        <div class="bdg-disc" style="right:26px; top:132px; width:44px; height:22px; line-height:22px;">-25%</div>
+        <div class="bdg-open" style="left:26px; top:132px; width:48px; height:20px; line-height:20px;">● 영업중</div>
+        <div class="txt" style="left:26px; top:252px; width:240px; font-size:15px; font-weight:700; color:#0F172A;">진고개 한식당</div>
+        <div class="txt" style="left:26px; top:276px; width:240px; font-size:12px; color:#64748B;">제육볶음 쌈밥정식</div>
+        <div class="txt" style="left:26px; top:304px; width:120px; font-size:18px; font-weight:700; color:#FF5722;">₩7,500</div>
+        <div class="txt" style="left:118px; top:308px; width:90px; font-size:12px; color:#94A3B8; text-decoration:line-through;">₩10,000</div>
+        <div class="tagx" style="left:236px; top:306px; width:96px; height:20px; line-height:20px;">★4.8 · 0.1km · 15분</div>
+        <div class="bbar"></div>
+        <div class="navic-on" style="left:24px;"></div><div class="navlb-on" style="left:8px;">홈</div>
+        <div class="navic" style="left:96px;"></div><div class="navlb" style="left:80px;">탐색</div>
+        <div class="navic" style="left:168px;"></div><div class="navlb" style="left:152px;">쿠폰함</div>
+        <div class="navic" style="left:240px;"></div><div class="navlb" style="left:224px;">알림</div>
+        <div class="navic" style="left:312px;"></div><div class="navlb" style="left:296px;">마이</div>
+      </div>
+      <div class="indicator" style="left:6px; top:14px;">1</div>
+      <div class="indicator" style="left:300px; top:14px;">2</div>
+      <div class="indicator" style="left:30px; top:82px;">3</div>
+      <div class="indicator" style="left:322px; top:130px;">4</div>
+      <div class="indicator" style="left:30px; top:128px;">5</div>
+      <div class="indicator" style="left:300px; top:300px;">6</div>
+      <div class="indicator" style="left:30px; top:304px;">7</div>
+      <div class="indicator" style="left:30px; top:618px;">8</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>로고</td><td>홈. 현재 위치 기반 점심특선 피드.</td></tr>
+        <tr><td class="num">2</td><td>알림</td><td>안읽음 배지. 탭 시 SCR-USR-010.</td></tr>
+        <tr><td class="num">3</td><td>정렬·필터 바</td><td>거리순/할인율순 등 + 필터·1인좌석 토글. 클라 캐시 재정렬.</td></tr>
+        <tr><td class="num">4</td><td>할인율 배지</td><td>(정상가−할인가)/정상가 자동 계산.</td></tr>
+        <tr><td class="num">5</td><td>영업 상태</td><td>영업중(녹색)/곧마감/휴무 3단계.</td></tr>
+        <tr><td class="num">6</td><td>특선 카드</td><td>탭 시 0.5초 내 SCR-USR-006. 무한 스크롤 20건/페이지.</td></tr>
+        <tr><td class="num">7</td><td>가격</td><td>할인가 강조 + 정상가 취소선. 별점·거리·소요시간.</td></tr>
+        <tr><td class="num">8</td><td>하단 네비</td><td>홈/탐색/쿠폰함/알림/마이 5탭.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SCR-USR-001 메인 지도 ==================== -->
+<div id="scr-001" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-001</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">메인 지도</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/map</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-0101, F-0103~107</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="txt" style="left:0; top:0; width:344px; height:560px; background:#E8EDF2;"></div>
+        <div class="inp" style="left:14px; top:58px; width:268px;">매장·메뉴 검색</div>
+        <div class="hdr-ic" style="right:14px; top:60px; width:60px; height:42px; line-height:40px;">리스트</div>
+        <div class="txt" style="left:150px; top:300px; width:64px; height:64px; border-radius:32px; background:#BBDEFB; border:2px solid #2196F3;"></div>
+        <div class="txt" style="left:174px; top:324px; width:16px; height:16px; border-radius:8px; background:#2196F3;"></div>
+        <div class="txt" style="left:120px; top:210px; width:30px; height:30px; border-radius:15px 15px 15px 2px; background:#FF5722;"></div>
+        <div class="txt" style="left:230px; top:250px; width:30px; height:30px; border-radius:15px 15px 15px 2px; background:#FF5722;"></div>
+        <div class="txt" style="left:80px; top:380px; width:26px; height:26px; border-radius:13px 13px 13px 2px; background:#94A3B8;"></div>
+        <div class="pill-on" style="left:14px; top:118px; width:60px; height:30px; line-height:30px;">500m</div>
+        <div class="pill" style="left:82px; top:118px; width:54px; height:30px; line-height:28px;">1km</div>
+        <div class="card-box" style="left:14px; bottom:74px; width:332px; height:84px;"></div>
+        <div class="cover-img" style="left:26px; bottom:86px; width:60px; height:60px;"></div>
+        <div class="txt" style="left:98px; bottom:120px; width:200px; font-size:14px; font-weight:700; color:#0F172A;">진고개 한식당</div>
+        <div class="txt" style="left:98px; bottom:98px; width:200px; font-size:12px; color:#FF5722; font-weight:700;">₩7,500 · 0.1km</div>
+        <div class="bbar"></div>
+        <div class="navic" style="left:24px;"></div><div class="navlb" style="left:8px;">홈</div>
+        <div class="navic-on" style="left:96px;"></div><div class="navlb-on" style="left:80px;">탐색</div>
+        <div class="navic" style="left:168px;"></div><div class="navlb" style="left:152px;">쿠폰함</div>
+        <div class="navic" style="left:240px;"></div><div class="navlb" style="left:224px;">알림</div>
+        <div class="navic" style="left:312px;"></div><div class="navlb" style="left:296px;">마이</div>
+      </div>
+      <div class="indicator" style="left:30px; top:62px;">1</div>
+      <div class="indicator" style="left:312px; top:62px;">2</div>
+      <div class="indicator" style="left:188px; top:300px;">3</div>
+      <div class="indicator" style="left:132px; top:206px;">4</div>
+      <div class="indicator" style="left:30px; top:120px;">5</div>
+      <div class="indicator" style="left:30px; top:520px;">6</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>검색 바</td><td>탭 시 SCR-USR-004 검색.</td></tr>
+        <tr><td class="num">2</td><td>리스트 토글</td><td>지도↔리스트 전환. 캐시 활용, 재요청 없음.</td></tr>
+        <tr><td class="num">3</td><td>현재 위치</td><td>GPS 핀 + 반경 원. 권한 거부 시 수동 검색 폴백.</td></tr>
+        <tr><td class="num">4</td><td>매장 핀</td><td>점심특선 발행=오렌지, 일반=회색. 10개↑ 클러스터.</td></tr>
+        <tr><td class="num">5</td><td>반경 토글</td><td>500m/1km/2km. 1초 내 갱신. 0건 시 확대 제안.</td></tr>
+        <tr><td class="num">6</td><td>카드 프리뷰</td><td>핀 탭 시 하단 미리보기 → 탭 시 상세.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SCR-USR-004 검색 ==================== -->
+<div id="scr-004" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-004</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">검색</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/search?q=</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-0108 한글 자모 분리 검색</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="hdr"></div>
+        <div class="hdr-back">‹</div>
+        <div class="inp" style="left:48px; top:8px; width:248px; height:32px; line-height:30px; color:#0F172A;">김밥</div>
+        <div class="txt" style="left:300px; top:14px; font-size:12px; color:#64748B;">취소</div>
+        <div class="txt" style="left:24px; top:70px; width:200px; font-size:11px; color:#94A3B8;">자동완성</div>
+        <div class="card-box" style="left:14px; top:90px; width:332px; height:120px;"></div>
+        <div class="txt" style="left:26px; top:102px; width:300px; font-size:13px; color:#334155;">김밥나라 강남점</div>
+        <div class="divln" style="left:26px; top:130px; width:308px;"></div>
+        <div class="txt" style="left:26px; top:142px; width:300px; font-size:13px; color:#334155;">김밥천국 역삼</div>
+        <div class="divln" style="left:26px; top:170px; width:308px;"></div>
+        <div class="txt" style="left:26px; top:182px; width:300px; font-size:13px; color:#334155;">김치찌개 명가</div>
+        <div class="bn-info" style="left:14px; top:228px; width:332px; height:54px;">초성 검색 지원 — &quot;ㄱㅂ&quot; 입력 시 &quot;김밥&quot; 매칭. 300ms 디바운스.</div>
+        <div class="txt" style="left:24px; top:300px; width:200px; font-size:11px; color:#94A3B8;">검색 결과</div>
+        <div class="card-box" style="left:14px; top:320px; width:332px; height:72px;"></div>
+        <div class="cover-img" style="left:26px; top:330px; width:52px; height:52px;"></div>
+        <div class="txt" style="left:90px; top:332px; width:200px; font-size:14px; font-weight:700; color:#0F172A;">김밥나라 강남점</div>
+        <div class="txt" style="left:90px; top:356px; width:200px; font-size:12px; color:#FF5722; font-weight:700;">₩6,000 · 분식</div>
+      </div>
+      <div class="indicator" style="left:30px; top:12px;">1</div>
+      <div class="indicator" style="left:30px; top:104px;">2</div>
+      <div class="indicator" style="left:30px; top:230px;">3</div>
+      <div class="indicator" style="left:30px; top:330px;">4</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>검색 입력</td><td>1자 이상부터 동작. 300ms 디바운스 → API 1회.</td></tr>
+        <tr><td class="num">2</td><td>자동완성</td><td>매장명 부분 일치. 탭 시 결과 이동.</td></tr>
+        <tr><td class="num">3</td><td>초성 검색 안내</td><td>자모 분리 매칭 지원. 0건 시 안내.</td></tr>
+        <tr><td class="num">4</td><td>결과 카드</td><td>탭 시 SCR-USR-006 상세.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SCR-USR-006 점심특선 상세 ==================== -->
+<div id="scr-006" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-006</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">점심특선 상세</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/special/:id</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-0206, F-0301, F-0503</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="cover-img" style="left:0; top:0; width:344px; height:200px; border-radius:0;"></div>
+        <div class="hdr-back" style="background:#FFFFFF;">‹</div>
+        <div class="hdr-ic" style="right:48px; background:#FFFFFF;">♡</div>
+        <div class="hdr-ic" style="right:14px; background:#FFFFFF;">공유</div>
+        <div class="bdg-disc" style="left:14px; top:170px; width:44px; height:22px; line-height:22px;">-25%</div>
+        <div class="txt" style="left:16px; top:212px; width:280px; font-size:20px; font-weight:700; color:#0F172A;">제육볶음 쌈밥정식</div>
+        <div class="txt" style="left:16px; top:242px; width:200px; font-size:13px; color:#64748B;">진고개 한식당 · 한식</div>
+        <div class="bdg-open" style="left:222px; top:242px; width:48px; height:20px; line-height:20px;">● 영업중</div>
+        <div class="txt" style="left:16px; top:276px; width:140px; font-size:24px; font-weight:700; color:#FF5722;">₩7,500</div>
+        <div class="txt" style="left:150px; top:284px; width:100px; font-size:14px; color:#94A3B8; text-decoration:line-through;">₩10,000</div>
+        <div class="bn-ok" style="left:16px; top:316px; width:312px; height:40px;">잔여 12장 · 마감까지 28:14 남음</div>
+        <div class="txt" style="left:16px; top:370px; width:200px; font-size:12px; color:#94A3B8;">매장 위치</div>
+        <div class="txt" style="left:16px; top:390px; width:312px; height:96px; border-radius:10px; background:#E8EDF2; border:1px solid #E2E8F0;"></div>
+        <div class="txt" style="left:150px; top:428px; width:24px; height:24px; border-radius:12px 12px 12px 2px; background:#FF5722;"></div>
+        <div class="btn-pri" style="position:absolute; left:16px; bottom:20px; width:312px; height:52px; line-height:52px; font-size:16px;">쿠폰 받기</div>
+      </div>
+      <div class="indicator" style="left:30px; top:80px;">1</div>
+      <div class="indicator" style="left:30px; top:278px;">2</div>
+      <div class="indicator" style="left:30px; top:318px;">3</div>
+      <div class="indicator" style="left:300px; top:420px;">4</div>
+      <div class="indicator" style="left:30px; top:600px;">5</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>대표 사진</td><td>4:3 고정. 누락 시 카테고리 기본 이미지.</td></tr>
+        <tr><td class="num">2</td><td>가격</td><td>할인가 강조 + 정상가 취소선 + 할인율.</td></tr>
+        <tr><td class="num">3</td><td>잔여 카운터</td><td>한정 수량·마감 시간 실시간 카운트다운. 매진 시 CTA 비활성.</td></tr>
+        <tr><td class="num">4</td><td>미니 지도</td><td>매장 위치 임베드. 길찾기 연동.</td></tr>
+        <tr><td class="num">5</td><td>쿠폰 받기</td><td>미인증 → SCR-USR-008 / 인증 → 발급(201) → SCR-USR-007.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SCR-USR-007 내 쿠폰함 ==================== -->
+<div id="scr-007" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-007</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">내 쿠폰함</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/coupons</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-0307, F-0309</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="hdr"></div>
+        <div class="hdr-title" style="left:14px;">내 쿠폰함</div>
+        <div class="txt" style="left:14px; top:56px; width:110px; height:34px; font-size:13px; font-weight:700; color:#FF5722; text-align:center; line-height:34px; border-bottom:2px solid #FF5722;">사용 가능 2</div>
+        <div class="txt" style="left:128px; top:56px; width:100px; height:34px; font-size:13px; color:#94A3B8; text-align:center; line-height:34px;">사용 완료</div>
+        <div class="txt" style="left:232px; top:56px; width:90px; height:34px; font-size:13px; color:#94A3B8; text-align:center; line-height:34px;">만료</div>
+        <div class="divln" style="left:0; top:90px; width:344px;"></div>
+        <div class="card-box" style="left:14px; top:104px; width:332px; height:130px;"></div>
+        <div class="bdg-soon" style="right:26px; top:116px; width:60px; height:20px; line-height:20px;">D-2 임박</div>
+        <div class="txt" style="left:26px; top:116px; width:200px; font-size:15px; font-weight:700; color:#0F172A;">진고개 한식당</div>
+        <div class="txt" style="left:26px; top:140px; width:220px; font-size:12px; color:#64748B;">제육볶음 쌈밥정식</div>
+        <div class="txt" style="left:26px; top:166px; width:160px; font-size:16px; font-weight:700; color:#FF5722;">25% 할인</div>
+        <div class="divln" style="left:26px; top:196px; width:308px;"></div>
+        <div class="txt" style="left:26px; top:206px; width:180px; font-size:11px; color:#94A3B8;">만료 2026-06-26 14:00</div>
+        <div class="btn-pri" style="position:absolute; left:240px; top:200px; width:94px; height:26px; line-height:26px; font-size:12px;">QR 보기</div>
+        <div class="card-box" style="left:14px; top:248px; width:332px; height:120px;"></div>
+        <div class="txt" style="left:26px; top:260px; width:200px; font-size:15px; font-weight:700; color:#0F172A;">샐러디 역삼</div>
+        <div class="txt" style="left:26px; top:284px; width:220px; font-size:12px; color:#64748B;">닭가슴살 샐러드</div>
+        <div class="txt" style="left:26px; top:310px; width:160px; font-size:16px; font-weight:700; color:#FF5722;">2,000원 할인</div>
+        <div class="bbar"></div>
+        <div class="navic" style="left:24px;"></div><div class="navlb" style="left:8px;">홈</div>
+        <div class="navic" style="left:96px;"></div><div class="navlb" style="left:80px;">탐색</div>
+        <div class="navic-on" style="left:168px;"></div><div class="navlb-on" style="left:152px;">쿠폰함</div>
+        <div class="navic" style="left:240px;"></div><div class="navlb" style="left:224px;">알림</div>
+        <div class="navic" style="left:312px;"></div><div class="navlb" style="left:296px;">마이</div>
+      </div>
+      <div class="indicator" style="left:30px; top:60px;">1</div>
+      <div class="indicator" style="left:30px; top:106px;">2</div>
+      <div class="indicator" style="left:300px; top:114px;">3</div>
+      <div class="indicator" style="left:300px; top:200px;">4</div>
+      <div class="indicator" style="left:30px; top:618px;">5</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>3탭</td><td>사용 가능/사용 완료/만료. 기본 사용 가능.</td></tr>
+        <tr><td class="num">2</td><td>쿠폰 카드</td><td>만료 임박순 정렬. 매장·메뉴·할인.</td></tr>
+        <tr><td class="num">3</td><td>임박 배지</td><td>만료 D-2 이내 강조.</td></tr>
+        <tr><td class="num">4</td><td>QR 보기</td><td>탭 시 SCR-USR-009 QR 제시.</td></tr>
+        <tr><td class="num">5</td><td>하단 네비</td><td>쿠폰함 탭 활성.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SCR-USR-009 쿠폰 QR 제시 ==================== -->
+<div id="scr-009" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-009</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">쿠폰 QR 제시</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/coupons/:id/qr</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-0303, F-0306 JWT 60초 토큰</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="hdr"></div>
+        <div class="hdr-back">‹</div>
+        <div class="hdr-title">쿠폰 사용</div>
+        <div class="txt" style="left:24px; top:72px; width:296px; font-size:16px; font-weight:700; color:#0F172A; text-align:center;">진고개 한식당</div>
+        <div class="txt" style="left:24px; top:98px; width:296px; font-size:13px; color:#64748B; text-align:center;">제육볶음 쌈밥정식 · 25% 할인</div>
+        <div class="qr" style="left:82px; top:138px; width:180px; height:180px;"></div>
+        <div class="qrdot" style="left:98px; top:154px; width:40px; height:40px;"></div>
+        <div class="qrdot" style="left:206px; top:154px; width:40px; height:40px;"></div>
+        <div class="qrdot" style="left:98px; top:262px; width:40px; height:40px;"></div>
+        <div class="qrdot" style="left:158px; top:200px; width:28px; height:28px;"></div>
+        <div class="qrdot" style="left:200px; top:240px; width:20px; height:20px;"></div>
+        <div class="qrdot" style="left:158px; top:262px; width:16px; height:16px;"></div>
+        <div class="txt" style="left:24px; top:338px; width:296px; font-size:22px; font-weight:700; color:#E53935; text-align:center;">00:54</div>
+        <div class="txt" style="left:24px; top:368px; width:296px; font-size:12px; color:#94A3B8; text-align:center;">1분마다 자동 갱신됩니다</div>
+        <div class="bn-info" style="left:24px; top:400px; width:296px; height:44px;">매장 직원에게 화면을 제시하세요. 100m 이내에서만 사용 가능합니다.</div>
+        <div class="bn-ok" style="left:24px; top:456px; width:296px; height:40px;">화면 밝기가 자동으로 최대로 조정됩니다.</div>
+      </div>
+      <div class="indicator" style="left:30px; top:140px;">1</div>
+      <div class="indicator" style="left:300px; top:336px;">2</div>
+      <div class="indicator" style="left:300px; top:362px;">3</div>
+      <div class="indicator" style="left:30px; top:404px;">4</div>
+      <div class="indicator" style="left:30px; top:458px;">5</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>QR 코드</td><td>JWT(HS256) 1회용 토큰. 사장님 스캔 → 사용 처리.</td></tr>
+        <tr><td class="num">2</td><td>카운트다운</td><td>60초 만료. 만료 시 자동 재발급.</td></tr>
+        <tr><td class="num">3</td><td>자동 갱신</td><td>사용자 액션 불필요. 위변조 방어.</td></tr>
+        <tr><td class="num">4</td><td>위치 안내</td><td>매장 100m 이내 검증(PostGIS). 초과 시 차단.</td></tr>
+        <tr><td class="num">5</td><td>밝기 안내</td><td>스캔 성공률 위해 밝기 자동 최대.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SCR-USR-010 알림 센터 ==================== -->
+<div id="scr-010" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-010</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">알림 센터</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/notifications</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-0308, F-9006</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="hdr"></div>
+        <div class="hdr-title" style="left:14px;">알림</div>
+        <div class="txt" style="right:14px; top:15px; font-size:12px; color:#FF5722; font-weight:600;">모두 읽음</div>
+        <div class="card-box" style="left:14px; top:60px; width:332px; height:72px; background:#FFF7F3;"></div>
+        <div class="txt" style="left:24px; top:70px; width:10px; height:10px; border-radius:5px; background:#FF5722;"></div>
+        <div class="txt" style="left:42px; top:70px; width:280px; font-size:13px; font-weight:700; color:#0F172A;">쿠폰이 사용되었습니다</div>
+        <div class="txt" style="left:42px; top:92px; width:280px; font-size:12px; color:#64748B;">진고개 한식당 · 7,500원 할인 적용</div>
+        <div class="txt" style="left:42px; top:112px; width:200px; font-size:11px; color:#94A3B8;">방금 전</div>
+        <div class="card-box" style="left:14px; top:144px; width:332px; height:72px; background:#FFF7F3;"></div>
+        <div class="txt" style="left:24px; top:154px; width:10px; height:10px; border-radius:5px; background:#FF5722;"></div>
+        <div class="txt" style="left:42px; top:154px; width:280px; font-size:13px; font-weight:700; color:#0F172A;">쿠폰 만료 1시간 전</div>
+        <div class="txt" style="left:42px; top:176px; width:280px; font-size:12px; color:#64748B;">샐러디 역삼 쿠폰이 곧 만료됩니다</div>
+        <div class="txt" style="left:42px; top:196px; width:200px; font-size:11px; color:#94A3B8;">1시간 전</div>
+        <div class="card-box" style="left:14px; top:228px; width:332px; height:72px;"></div>
+        <div class="txt" style="left:42px; top:238px; width:280px; font-size:13px; font-weight:600; color:#334155;">새 점심특선이 등록되었어요</div>
+        <div class="txt" style="left:42px; top:260px; width:280px; font-size:12px; color:#64748B;">강남 테헤란로 주변 3곳 신규</div>
+        <div class="txt" style="left:42px; top:280px; width:200px; font-size:11px; color:#94A3B8;">어제</div>
+        <div class="bbar"></div>
+        <div class="navic" style="left:24px;"></div><div class="navlb" style="left:8px;">홈</div>
+        <div class="navic" style="left:96px;"></div><div class="navlb" style="left:80px;">탐색</div>
+        <div class="navic" style="left:168px;"></div><div class="navlb" style="left:152px;">쿠폰함</div>
+        <div class="navic-on" style="left:240px;"></div><div class="navlb-on" style="left:224px;">알림</div>
+        <div class="navic" style="left:312px;"></div><div class="navlb" style="left:296px;">마이</div>
+      </div>
+      <div class="indicator" style="left:300px; top:14px;">1</div>
+      <div class="indicator" style="left:18px; top:66px;">2</div>
+      <div class="indicator" style="left:30px; top:150px;">3</div>
+      <div class="indicator" style="left:30px; top:234px;">4</div>
+      <div class="indicator" style="left:30px; top:618px;">5</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>모두 읽음</td><td>전체 읽음 처리. 30일 후 자동 정리.</td></tr>
+        <tr><td class="num">2</td><td>안읽음 표시</td><td>주황 점 + 강조 배경. 탭 시 읽음(옵티미스틱).</td></tr>
+        <tr><td class="num">3</td><td>만료 알림</td><td>만료 1시간 전 푸시(FCM) + 인앱.</td></tr>
+        <tr><td class="num">4</td><td>시스템 알림</td><td>신규 특선·공지 통합.</td></tr>
+        <tr><td class="num">5</td><td>하단 네비</td><td>알림 탭 활성.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== SCR-USR-014 설정 ==================== -->
+<div id="scr-014" class="screen-section">
+  <div class="meta-box" style="margin:60px 24px 0 24px;">
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <span class="screen-id-badge">SCR-USR-014</span>
+      <div><span class="meta-label">Screen</span><div class="meta-value" style="font-weight:600; font-size:15px;">설정 (큰 글씨·알림)</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">URL</span><div class="meta-value">/settings</div></div>
+      <div style="margin-left:20px;"><span class="meta-label">기능</span><div class="meta-value">F-9007, F-7003</div></div>
+    </div>
+  </div>
+  <div class="wireframe-wrap" style="margin:0 24px 24px 24px; padding:20px 0;">
+    <div class="ind-container" style="width:360px; margin:0 auto;">
+      <div class="device">
+        <div class="hdr"></div>
+        <div class="hdr-back">‹</div>
+        <div class="hdr-title">설정</div>
+        <div class="txt" style="left:24px; top:64px; font-size:11px; color:#94A3B8;">화면</div>
+        <div class="card-box" style="left:14px; top:84px; width:332px; height:104px;"></div>
+        <div class="txt" style="left:26px; top:98px; width:200px; font-size:14px; font-weight:600; color:#0F172A;">큰 글씨 모드</div>
+        <div class="pill" style="left:26px; top:124px; width:80px; height:30px; line-height:28px;">1.0x 기본</div>
+        <div class="pill-on" style="left:114px; top:124px; width:80px; height:30px; line-height:30px;">1.25x</div>
+        <div class="pill" style="left:202px; top:124px; width:80px; height:30px; line-height:28px;">1.5x 크게</div>
+        <div class="divln" style="left:26px; top:166px; width:308px;"></div>
+        <div class="txt" style="left:26px; top:176px; width:200px; font-size:13px; color:#334155;">다크 모드</div>
+        <div class="tgl-off" style="left:294px; top:172px;"></div>
+        <div class="tgl-kn-of" style="left:296px; top:174px;"></div>
+        <div class="txt" style="left:24px; top:204px; font-size:11px; color:#94A3B8;">알림</div>
+        <div class="card-box" style="left:14px; top:224px; width:332px; height:104px;"></div>
+        <div class="txt" style="left:26px; top:238px; width:200px; font-size:13px; color:#334155;">위치 기반 점심특선 알림</div>
+        <div class="tgl-on" style="left:294px; top:234px;"></div>
+        <div class="tgl-kn-on" style="left:316px; top:236px;"></div>
+        <div class="divln" style="left:26px; top:272px; width:308px;"></div>
+        <div class="txt" style="left:26px; top:286px; width:200px; font-size:13px; color:#334155;">쿠폰 만료 임박 알림</div>
+        <div class="tgl-on" style="left:294px; top:282px;"></div>
+        <div class="tgl-kn-on" style="left:316px; top:284px;"></div>
+        <div class="txt" style="left:24px; top:344px; font-size:11px; color:#94A3B8;">계정</div>
+        <div class="card-box" style="left:14px; top:364px; width:332px; height:96px;"></div>
+        <div class="txt" style="left:26px; top:378px; width:240px; font-size:13px; color:#334155;">본인 인증 완료</div>
+        <div class="bdg-open" style="left:240px; top:378px; width:48px; height:20px; line-height:20px;">✓ 인증</div>
+        <div class="divln" style="left:26px; top:406px; width:308px;"></div>
+        <div class="txt" style="left:26px; top:418px; width:200px; font-size:13px; color:#334155;">로그아웃</div>
+        <div class="divln" style="left:26px; top:436px; width:308px;"></div>
+        <div class="txt" style="left:26px; top:446px; width:200px; font-size:13px; color:#E53935;">회원 탈퇴</div>
+      </div>
+      <div class="indicator" style="left:30px; top:124px;">1</div>
+      <div class="indicator" style="left:300px; top:170px;">2</div>
+      <div class="indicator" style="left:300px; top:234px;">3</div>
+      <div class="indicator" style="left:30px; top:446px;">4</div>
+    </div>
+  </div>
+  <div class="desc-wrap">
+    <h3 style="font-weight:700; color:#212529;">Description</h3>
+    <table class="desc-table">
+      <thead><tr><th class="num">No.</th><th>요소</th><th>설명</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><td>큰 글씨 모드</td><td>1.0/1.25/1.5x. CSS 변수+LocalStorage 영속. 레이아웃 유지.</td></tr>
+        <tr><td class="num">2</td><td>다크 모드</td><td>토글 즉시 반영. 프로필 저장.</td></tr>
+        <tr><td class="num">3</td><td>알림 설정</td><td>위치·만료 알림 옵트인. 푸시/인앱 분기.</td></tr>
+        <tr><td class="num">4</td><td>회원 탈퇴</td><td>SCR-USR-013. 30일 유예 후 개인정보 파기.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ==================== JS ==================== -->
+<script>
+function showScreen(screenId, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const target = document.getElementById(screenId);
+  if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+document.getElementById('cover-page').addEventListener('click', (e) => {
+  if (!e.target.closest('button') && !e.target.closest('.download-btns')) {
+    showScreen('scr-011', document.querySelectorAll('.tab-btn')[1]);
+  }
+});
+function updateActiveTab() {
+  const sections = document.querySelectorAll('.screen-section');
+  const tabs = document.querySelectorAll('.tab-btn');
+  let current = 0;
+  sections.forEach((section, idx) => {
+    const rect = section.getBoundingClientRect();
+    if (rect.top <= 80) current = idx;
+  });
+  tabs.forEach(t => t.classList.remove('active'));
+  if (tabs[current]) tabs[current].classList.add('active');
+}
+function downloadPDF(e) { e.stopPropagation(); window.print(); }
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('cover-page').style.cursor = 'pointer';
+  window.addEventListener('scroll', updateActiveTab, { passive: true });
+});
+</script>
+
+<!-- BEGIN sb-creator-pptx script (auto-injected) -->
+<script>
+/* ============================================================
+ * sb-creator-pptx — HTML to Editable PPTX Export
+ *   - 각 SECTION_SELECTOR 요소를 슬라이드로 변환
+ *   - DOM 요소 → PptxGenJS addShape/addText (편집 가능 네이티브 형태)
+ *   - body 폭 1440px 강제 측정으로 사용자 창 크기 무관 일정한 스케일
+ *   - 단일행 자동 감지 → wrap:false (짧은 한글 잘림 방지)
+ *   - 폰트 폭 보정 (단일행 +15%, 다행 +8%)
+ *   - 세로로 긴 화면은 SLIDE_HEIGHT 단위로 자동 분할 (멀티 슬라이드)
+ *
+ * 템플릿 변수 (inject.py가 치환):
+ *   .screen-section   기본 .screen-section
+ *   13.33         기본 13.33 (인치, Widescreen)
+ *   7.5        기본 7.5
+ *   사용자_화면설계서_20260619_0219_editable         기본 PPTX_Export
+ * ============================================================ */
+
+async function downloadPPTX(e) {
+  if (e && e.stopPropagation) e.stopPropagation();
+  const btn = document.getElementById('btn-pptx');
+  const progress = document.getElementById('download-progress');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="animation:sbpptx-spin 1s linear infinite;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> 생성 중...';
+  }
+  if (progress) progress.style.display = '';
+
+  if (!document.getElementById('sbpptx-spin-style')) {
+    const s = document.createElement('style');
+    s.id = 'sbpptx-spin-style';
+    s.textContent = '@keyframes sbpptx-spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(s);
+  }
+
+  const hideEls = document.querySelectorAll('.no-print, .sbpptx-hide');
+  const bodyOrigCss = document.body.style.cssText;
+  const htmlOrigCss = document.documentElement.style.cssText;
+
+  try {
+    await loadScript([
+      'https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js',
+      'https://cdn.jsdelivr.net/gh/gitbrent/PptxGenJS@3.12.0/dist/pptxgen.bundle.js',
+      'https://unpkg.com/pptxgenjs@3.12.0/dist/pptxgen.bundle.js',
+    ], () => typeof PptxGenJS !== 'undefined');
+
+    const pptx = new PptxGenJS();
+    const SLIDE_W = 13.33;
+    const SLIDE_H = 7.5;
+    pptx.defineLayout({ name: 'WIDE', width: SLIDE_W, height: SLIDE_H });
+    pptx.layout = 'WIDE';
+
+    // 측정 일관성을 위해 본문 폭을 1440px로 고정
+    hideEls.forEach(el => el.dataset._origDisplay = el.style.display);
+    hideEls.forEach(el => el.style.display = 'none');
+    document.documentElement.style.width = '1440px';
+    document.documentElement.style.overflowX = 'hidden';
+    document.body.style.width = '1440px';
+    document.body.style.minWidth = '1440px';
+    document.body.style.maxWidth = '1440px';
+    void document.body.offsetHeight;
+    window.scrollTo(0, 0);
+    await new Promise(r => setTimeout(r, 400));
+
+    const sections = document.querySelectorAll('.screen-section');
+    if (sections.length === 0) {
+      throw new Error('변환할 섹션이 없습니다. 셀렉터: .screen-section');
+    }
+
+    for (let i = 0; i < sections.length; i++) {
+      const section = sections[i];
+      const isCover = (i === 0);
+
+      const sRect = section.getBoundingClientRect();
+      const sx = sRect.left + window.scrollX;
+      const sy = sRect.top + window.scrollY;
+      const sw = sRect.width;
+      const sh = sRect.height;
+      if (sw < 10 || sh < 10) continue;
+
+      // 가로 폭 기준 단일 스케일 (인치/픽셀)
+      const scale = SLIDE_W / sw;
+      const sectionHInches = sh * scale;
+      const numPages = Math.max(1, Math.ceil(sectionHInches / SLIDE_H));
+      const verticalCenterOffset = (numPages === 1) ? Math.max(0, (SLIDE_H - sectionHInches) / 2) : 0;
+
+      for (let p = 0; p < numPages; p++) {
+        if (progress) {
+          progress.textContent = `${i + 1}/${sections.length}` + (numPages > 1 ? ` (페이지 ${p + 1}/${numPages})` : '');
+        }
+        const slide = pptx.addSlide();
+        slide.background = { color: isCover ? '212529' : 'F8F9FA' };
+
+        const pageOffsetY = verticalCenterOffset - p * SLIDE_H;
+        const elements = section.querySelectorAll('*');
+        // 1차 패스: 인디케이터·.on-top 외 모든 요소
+        for (const el of elements) {
+          if (el.classList && (el.classList.contains('indicator') || el.classList.contains('on-top'))) continue;
+          sbpptxRenderElement(pptx, slide, el, sx, sy, scale, 0, pageOffsetY, SLIDE_W, SLIDE_H);
+        }
+        // 2차 패스: 인디케이터·.on-top을 맨 위 레이어로
+        for (const el of elements) {
+          if (!el.classList || (!el.classList.contains('indicator') && !el.classList.contains('on-top'))) continue;
+          sbpptxRenderElement(pptx, slide, el, sx, sy, scale, 0, pageOffsetY, SLIDE_W, SLIDE_H);
+        }
+        await new Promise(r => requestAnimationFrame(r));
+      }
+    }
+
+    // 파일명에 타임스탬프 추가: YYYYMMDD_HHMM
+    const _ts = (() => {
+      const n = new Date();
+      const z = v => String(v).padStart(2, '0');
+      return `${n.getFullYear()}${z(n.getMonth()+1)}${z(n.getDate())}_${z(n.getHours())}${z(n.getMinutes())}`;
+    })();
+    await pptx.writeFile({ fileName: `사용자_화면설계서_20260619_0219_editable_${_ts}.pptx` });
+  } catch (err) {
+    console.error('PPTX generation failed:', err);
+    alert('PPTX 생성 실패: ' + err.message);
+  } finally {
+    document.body.style.cssText = bodyOrigCss;
+    document.documentElement.style.cssText = htmlOrigCss;
+    hideEls.forEach(el => { el.style.display = el.dataset._origDisplay || ''; delete el.dataset._origDisplay; });
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg> PPTX 다운로드';
+    }
+    if (progress) progress.style.display = 'none';
+  }
+}
+
+function sbpptxRenderElement(pptx, slide, el, baseX, baseY, scale, offsetX, offsetY, slideW, slideH) {
+  const tag = el.tagName;
+  if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'LINK' || tag === 'META' || tag === 'TITLE' || tag === 'HEAD' || tag === 'TEMPLATE' || tag === 'BR' || tag === 'HR') return;
+  if (tag === 'svg' || tag === 'SVG' || tag === 'PATH' || tag === 'CIRCLE' || tag === 'LINE' || tag === 'RECT' || tag === 'POLYLINE' || tag === 'POLYGON') return;
+  if (el.classList && (el.classList.contains('no-print') || el.classList.contains('sbpptx-hide'))) return;
+  if (el.closest && (el.closest('.no-print') || el.closest('.sbpptx-hide'))) return;
+
+  const rect = el.getBoundingClientRect();
+  if (rect.width < 0.5 || rect.height < 0.5) return;
+
+  const style = window.getComputedStyle(el);
+  if (style.display === 'none' || style.visibility === 'hidden') return;
+  if (parseFloat(style.opacity) === 0) return;
+
+  const rx = rect.left + window.scrollX;
+  const ry = rect.top + window.scrollY;
+  const x = offsetX + (rx - baseX) * scale;
+  const y = offsetY + (ry - baseY) * scale;
+  const w = rect.width * scale;
+  const h = rect.height * scale;
+
+  if (x >= slideW + 0.05 || y >= slideH + 0.05) return;
+  if (x + w <= -0.05 || y + h <= -0.05) return;
+  if (w < 0.02 || h < 0.02) return;
+
+  // (1) 배경/테두리 도형
+  const bg = style.backgroundColor;
+  let bgHex = null;
+  if (!sbpptxIsTransparent(bg)) {
+    bgHex = sbpptxRgbToHex(bg);
+    const alpha = sbpptxGetAlpha(bg);
+    if (alpha !== null && alpha < 1) {
+      const parentBg = sbpptxFindOpaqueParentBg(el);
+      bgHex = sbpptxBlendHex(parentBg, bgHex, alpha);
+    }
+  }
+  // backgroundColor 투명 + background-image 그래디언트 → 첫 색상으로 폴백
+  if (!bgHex && style.backgroundImage && style.backgroundImage.includes('gradient')) {
+    const m = style.backgroundImage.match(/rgba?\([^)]+\)|#[0-9a-fA-F]{6,8}|#[0-9a-fA-F]{3}\b/);
+    if (m) {
+      const c = m[0];
+      bgHex = c.startsWith('#')
+        ? (c.length === 4 ? c.slice(1).split('').map(h => h+h).join('') : c.slice(1)).toUpperCase().slice(0, 6)
+        : sbpptxRgbToHex(c);
+    }
+  }
+  const bw = parseFloat(style.borderTopWidth) || 0;
+  const bColor = bw > 0 ? sbpptxRgbToHex(style.borderTopColor) : null;
+  const radiusPx = parseFloat(style.borderTopLeftRadius) || 0;
+
+  if (bgHex || (bw > 0 && bColor)) {
+    const sx = Math.max(0, x);
+    const sy = Math.max(0, y);
+    const sw = Math.min(x + w, slideW) - sx;
+    const sh = Math.min(y + h, slideH) - sy;
+    if (sw > 0.02 && sh > 0.02) {
+      const opts = {
+        x: sx, y: sy, w: sw, h: sh,
+        fill: bgHex ? { color: bgHex } : { type: 'none' },
+        line: (bw > 0 && bColor) ? { color: bColor, width: Math.max(0.25, bw * 0.6) } : { type: 'none' },
+      };
+      // 도형 종류 선택 (단순화):
+      //   - 정사각형(1:1) + border-radius ≥ 절반 → OVAL (완전한 원, 예: 넘버링 인디케이터)
+      //   - 그 외 모든 도형 → RECTANGLE (직각, HTML 둥근 모서리는 무시)
+      const minDim = Math.min(rect.width, rect.height);
+      const aspectRatio = Math.max(rect.width, rect.height) / Math.max(0.1, minDim);
+      const fullyRounded = radiusPx >= minDim / 2 - 1;
+      const isCircle = fullyRounded && aspectRatio <= 1.2;
+      const shapeType = isCircle ? pptx.shapes.OVAL : pptx.shapes.RECTANGLE;
+      try { slide.addShape(shapeType, opts); } catch (err) { /* ignore */ }
+    }
+  }
+
+  // (1-b) ::after 가상 요소 렌더 (예: 토글 스위치 핸들 등 CSS pseudo로 만들어진 동그라미)
+  try {
+    const after = window.getComputedStyle(el, '::after');
+    if (after) {
+      const contentVal = after.content;
+      if (contentVal && contentVal !== 'none' && contentVal !== 'normal') {
+        const aW = parseFloat(after.width) || 0;
+        const aH = parseFloat(after.height) || 0;
+        const aBg = after.backgroundColor;
+        if (aW > 0 && aH > 0 && !sbpptxIsTransparent(aBg)) {
+          const aLeft = parseFloat(after.left) || 0;
+          const aTop = parseFloat(after.top) || 0;
+          const ax = x + aLeft * scale;
+          const ay = y + aTop * scale;
+          const aw = aW * scale;
+          const ah = aH * scale;
+          const aR = parseFloat(after.borderTopLeftRadius) || 0;
+          const aFullyRounded = aR >= Math.min(aW, aH) / 2 - 1;
+          const aIsCircle = aFullyRounded && Math.abs(aW - aH) < 2;
+          const aShape = aIsCircle ? pptx.shapes.OVAL : pptx.shapes.RECTANGLE;
+          slide.addShape(aShape, {
+            x: ax, y: ay, w: aw, h: ah,
+            fill: { color: sbpptxRgbToHex(aBg) },
+            line: { type: 'none' },
+          });
+        }
+      }
+    }
+  } catch (err) { /* ignore */ }
+
+  // (2-a) 폼 요소(input/select/textarea) — 직접 표시 텍스트 추출하여 렌더
+  if (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA') {
+    let formText = '';
+    let isPlaceholder = false;
+    try {
+      if (el.tagName === 'SELECT') {
+        const opt = el.querySelector('option[selected]') || el.querySelector('option');
+        if (opt) formText = String(opt.textContent || '').trim();
+      } else {
+        formText = String(el.value || '').trim();
+        if (!formText) {
+          const ph = el.getAttribute('placeholder');
+          if (ph) {
+            formText = String(ph).trim();
+            isPlaceholder = !!formText;
+          }
+        }
+        if (!formText) {
+          const inputType = el.type || el.getAttribute('type') || '';
+          if (inputType === 'date') {
+            formText = 'YYYY.MM.DD';
+            isPlaceholder = true;
+          } else if (inputType === 'time') {
+            formText = 'HH:MM';
+            isPlaceholder = true;
+          } else if (inputType === 'datetime-local') {
+            formText = 'YYYY.MM.DD HH:MM';
+            isPlaceholder = true;
+          }
+        }
+      }
+    } catch (e) { /* form access failed */ }
+
+    if (formText) {
+      // 폼 요소는 본문 텍스트 → 7pt 고정
+      const fontPt = 7;
+      const color = isPlaceholder ? '6C757D' : (sbpptxRgbToHex(style.color) || '212529');
+      const fontFace = sbpptxFontName(style.fontFamily);
+      const padL = (parseFloat(style.paddingLeft) || 0) * scale;
+      const padR = (parseFloat(style.paddingRight) || 0) * scale;
+      const tx = Math.max(0, x + padL);
+      const ty = Math.max(0, y);
+      const tw = Math.max(0.3, Math.min(slideW - tx, w - padL - padR + w * 0.2));
+      const th = Math.max(0.15, Math.min(slideH - ty, h));
+      const opts = {
+        x: tx, y: ty, w: tw, h: th,
+        fontFace: fontFace,
+        fontSize: fontPt,
+        color: color,
+        align: 'left',
+        valign: 'middle',
+        margin: 0,
+        wrap: false,
+        fit: 'shrink',
+        isTextBox: true,
+      };
+      try {
+        slide.addText(formText, opts);
+      } catch (err) {
+        console.warn('form addText failed:', err, formText, opts);
+      }
+    }
+    return;
+  }
+
+  // (2) 텍스트 리프 요소만 텍스트박스로 추가
+  if (sbpptxIsTextLeaf(el)) {
+    const text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    if (text && text.length > 0 && text.length < 2500) {
+      const fontPx = parseFloat(style.fontSize) || 13;
+      // 폰트 규칙:
+      //   - 본문 글씨 (HTML font-size < 20px) → 7pt 고정 (전체 영역 통일)
+      //   - 헤딩·큰 숫자 (HTML font-size ≥ 20px) → 8~14pt 클램프 (h1, stat-value 등 강조)
+      const rawPt = fontPx * scale * 72;
+      const isLargeText = fontPx >= 20;
+      const fontPt = isLargeText
+        ? Math.max(8, Math.min(14, rawPt))
+        : 7;
+      const color = sbpptxRgbToHex(style.color) || '212529';
+      const fw = parseInt(style.fontWeight) || 400;
+      const bold = fw >= 600;
+      const italic = style.fontStyle === 'italic';
+      const fontFace = sbpptxFontName(style.fontFamily);
+      let align = 'left';
+      if (style.textAlign === 'center') align = 'center';
+      else if (style.textAlign === 'right') align = 'right';
+      // flex의 justify-content:center도 가로 중앙 정렬로 처리
+      if (style.display === 'flex' && style.justifyContent === 'center') align = 'center';
+      // .desc-table/.desc-wrap/.always-top 영역은 예외 없이 상단 정렬
+      const forceTop = el.closest && (el.closest('.desc-table') || el.closest('.desc-wrap') || el.closest('.always-top'));
+      const valign = forceTop ? 'top' :
+                     (style.display === 'flex' && style.alignItems === 'center') ? 'middle' :
+                     (style.verticalAlign === 'middle') ? 'middle' : 'top';
+
+      // 단일행 텍스트 자동 감지:
+      //   - white-space:nowrap/pre, 또는
+      //   - 버튼·배지·사이드바·탭 항목, 또는
+      //   - 요소 높이 < line-height × 1.8
+      let lineHeightPx = parseFloat(style.lineHeight);
+      if (!isFinite(lineHeightPx) || style.lineHeight === 'normal') {
+        lineHeightPx = fontPx * 1.2;
+      }
+      const nowrapCss = style.whiteSpace === 'nowrap' || style.whiteSpace === 'pre';
+      const tagName = el.tagName;
+      const cls = el.classList || { contains: () => false };
+      const isButtonLike = tagName === 'BUTTON' || tagName === 'A'
+                          || cls.contains('btn') || cls.contains('badge')
+                          || cls.contains('sidebar-item') || cls.contains('tab-btn')
+                          || cls.contains('chip') || cls.contains('pill') || cls.contains('tag');
+      const isSingleLine = nowrapCss || isButtonLike || (rect.height < lineHeightPx * 1.8);
+
+      // padding inset
+      const padT = (parseFloat(style.paddingTop) || 0) * scale;
+      const padL = (parseFloat(style.paddingLeft) || 0) * scale;
+      const padR = (parseFloat(style.paddingRight) || 0) * scale;
+      const padB = (parseFloat(style.paddingBottom) || 0) * scale;
+
+      // 텍스트박스 폭 버퍼: 단일행 +15% / Description 영역 0% / 기타 다행 +5%
+      // Description 영역은 우측 슬라이드 가장자리 안전 여백 확대 (텍스트가 모서리에 닿지 않도록)
+      const inDescAreaText = el.closest && (el.closest('.desc-wrap') || el.closest('.desc-table') || el.closest('.always-top'));
+      const widthBufferRatio = isSingleLine ? 0.15 : (inDescAreaText ? 0 : 0.05);
+      const widthBuffer = w * widthBufferRatio;
+      const rightSafe = inDescAreaText ? 0.15 : 0.05;
+
+      const tx = Math.max(0, x + padL);
+      const ty = Math.max(0, y + padT);
+      const naturalRight = x + w - padR + widthBuffer;
+      const trEdge = Math.min(slideW - rightSafe, naturalRight);
+      const tbEdge = Math.min(slideH, y + h - padB);
+      const tw = Math.max(0.1, trEdge - tx);
+      const th = Math.max(0.1, tbEdge - ty);
+
+      try {
+        slide.addText(text, {
+          x: tx, y: ty, w: tw, h: th,
+          fontFace: fontFace,
+          fontSize: fontPt,
+          color: color,
+          bold: bold,
+          italic: italic,
+          align: align,
+          valign: valign,
+          margin: 0,
+          wrap: !isSingleLine,
+          shrinkText: true,
+          autoFit: true,
+          isTextBox: true,
+        });
+      } catch (err) { /* ignore */ }
+    }
+  }
+}
+
+function sbpptxIsTextLeaf(el) {
+  if (!el.textContent || !el.textContent.trim()) return false;
+  if (el.children.length === 0) return true;
+  for (const child of el.children) {
+    const t = child.tagName;
+    if (t === 'svg' || t === 'BR' || t === 'IMG' || t === 'INPUT' || t === 'HR') continue;
+    if (child.textContent && child.textContent.trim()) return false;
+  }
+  return true;
+}
+
+function sbpptxRgbToHex(s) {
+  if (!s) return null;
+  if (s === 'transparent') return null;
+  const m = s.match(/rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/);
+  if (!m) return null;
+  const a = s.match(/rgba?\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\s*\)/);
+  if (a && parseFloat(a[1]) === 0) return null;
+  const r = Math.round(parseFloat(m[1]));
+  const g = Math.round(parseFloat(m[2]));
+  const b = Math.round(parseFloat(m[3]));
+  return ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0').toUpperCase();
+}
+
+function sbpptxIsTransparent(c) {
+  if (!c) return true;
+  if (c === 'transparent') return true;
+  if (c === 'rgba(0, 0, 0, 0)') return true;
+  const a = c.match(/rgba?\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\s*\)/);
+  if (a && parseFloat(a[1]) === 0) return true;
+  return false;
+}
+
+// rgba 알파 값 추출
+function sbpptxGetAlpha(c) {
+  if (!c) return null;
+  const a = c.match(/rgba\([^,]+,[^,]+,[^,]+,\s*([\d.]+)\s*\)/);
+  if (a) return parseFloat(a[1]);
+  if (c.startsWith('rgb(')) return 1;
+  return null;
+}
+
+// 상위 요소를 거슬러 올라가며 불투명한 background-color 검색
+function sbpptxFindOpaqueParentBg(el) {
+  let p = el.parentElement;
+  while (p) {
+    const ps = window.getComputedStyle(p);
+    const pbg = ps.backgroundColor;
+    if (!sbpptxIsTransparent(pbg)) {
+      const alpha = sbpptxGetAlpha(pbg);
+      if (alpha === null || alpha >= 1) {
+        return sbpptxRgbToHex(pbg);
+      }
+    }
+    p = p.parentElement;
+  }
+  return 'FFFFFF';
+}
+
+// 알파 블렌딩 (bg + alpha*fg)
+function sbpptxBlendHex(bgHex, fgHex, alpha) {
+  if (!bgHex || !fgHex) return fgHex || bgHex;
+  const br = parseInt(bgHex.slice(0, 2), 16);
+  const bgC = parseInt(bgHex.slice(2, 4), 16);
+  const bb = parseInt(bgHex.slice(4, 6), 16);
+  const fr = parseInt(fgHex.slice(0, 2), 16);
+  const fgC = parseInt(fgHex.slice(2, 4), 16);
+  const fb = parseInt(fgHex.slice(4, 6), 16);
+  const r = Math.round(alpha * fr + (1 - alpha) * br);
+  const g = Math.round(alpha * fgC + (1 - alpha) * bgC);
+  const b = Math.round(alpha * fb + (1 - alpha) * bb);
+  return ((r << 16) | (g << 8) | b).toString(16).padStart(6, '0').toUpperCase();
+}
+
+function sbpptxFontName(ff) {
+  if (!ff) return '맑은 고딕';
+  const f = ff.toLowerCase();
+  if (f.includes('mono') || f.includes('courier') || f.includes('consolas')) return 'Consolas';
+  return '맑은 고딕';
+}
+
+// 여러 CDN을 순차 시도하는 폴백 로더.
+//   - src: 단일 URL 또는 URL 배열 (앞에서부터 차례로 시도)
+//   - isReady: (선택) 로드 성공 판정 함수. 라이브러리 전역이 실제로 정의됐는지 확인
+//     (사내/교육망 프록시가 200 + 빈/에러 본문을 반환하는 경우까지 방어)
+function loadScript(src, isReady) {
+  const urls = Array.isArray(src) ? src : [src];
+  const ready = () => (typeof isReady === 'function' ? isReady() : true);
+  function tryLoad(i) {
+    return new Promise((resolve, reject) => {
+      if (i >= urls.length) { reject(new Error('모든 CDN에서 라이브러리 로드 실패: ' + urls.join(', '))); return; }
+      const url = urls[i];
+      if (ready()) { resolve(); return; }
+      const existing = document.querySelector(`script[src="${url}"]`);
+      if (existing && existing.dataset._sbpptxLoaded === '1' && ready()) { resolve(); return; }
+      const s = existing || document.createElement('script');
+      s.src = url;
+      s.onload = () => {
+        s.dataset._sbpptxLoaded = '1';
+        if (ready()) resolve();
+        else tryLoad(i + 1).then(resolve, reject); // 200이지만 라이브러리 미정의 → 다음 CDN
+      };
+      s.onerror = () => {
+        if (s.parentNode) s.parentNode.removeChild(s); // 실패한 태그 제거 후 다음 CDN
+        tryLoad(i + 1).then(resolve, reject);
+      };
+      if (!existing) document.head.appendChild(s);
+    });
+  }
+  return tryLoad(0);
+}
+
+</script>
+<!-- END sb-creator-pptx script -->
+</body>
+</html>

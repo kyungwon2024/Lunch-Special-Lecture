@@ -1,0 +1,122 @@
+[
+  {
+    "id": "TC-UI-HOME",
+    "kind": "url",
+    "path": "/",
+    "mobile": true,
+    "full": true
+  },
+  {
+    "id": "TC-SPECIALS-200",
+    "kind": "api",
+    "method": "GET",
+    "path": "/api/specials",
+    "tc": "TC-F2-001",
+    "label": "점심특선 피드",
+    "expect": "200 특선목록"
+  },
+  {
+    "id": "TC-COUPONS-401",
+    "kind": "api",
+    "method": "GET",
+    "path": "/api/coupons",
+    "tc": "TC-ADM-003",
+    "label": "인증 가드(토큰X)",
+    "expect": "401"
+  },
+  {
+    "id": "TC-METHOD-405",
+    "kind": "api",
+    "method": "GET",
+    "path": "/api/auth/login",
+    "tc": "TC-ADM-003",
+    "label": "메서드 라우팅",
+    "expect": "405"
+  },
+  {
+    "id": "TC-BADTOKEN-401",
+    "kind": "api",
+    "method": "GET",
+    "path": "/api/coupons",
+    "token": "invalid.token.xyz",
+    "tc": "TC-NFR-005",
+    "label": "토큰 위변조 거부",
+    "expect": "401"
+  },
+  {
+    "id": "TC-SIGNUP-201",
+    "kind": "api",
+    "method": "POST",
+    "path": "/api/auth/signup",
+    "body": {
+      "phone": "01016283014",
+      "password": "Evidence!2026"
+    },
+    "tc": "TC-OPS-USR-001",
+    "label": "회원가입",
+    "expect": "201 userId"
+  },
+  {
+    "id": "TC-LOGIN-401",
+    "kind": "api",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "body": {
+      "phone": "01016283014",
+      "password": "WRONG"
+    },
+    "tc": "TC-OPS-USR-001",
+    "label": "로그인 보안(틀린 pw)",
+    "expect": "401"
+  },
+  {
+    "id": "TC-LOGIN-200",
+    "kind": "api",
+    "method": "POST",
+    "path": "/api/auth/login",
+    "body": {
+      "phone": "01016283014",
+      "password": "Evidence!2026"
+    },
+    "saveFrom": true,
+    "tc": "TC-OPS-USR-001",
+    "label": "로그인(I-004 수정)",
+    "expect": "200 JWT"
+  },
+  {
+    "id": "TC-COUPON-201",
+    "kind": "api",
+    "method": "POST",
+    "path": "/api/coupons",
+    "useToken": true,
+    "body": {
+      "specialId": "00000000-0000-0000-0000-000000000033"
+    },
+    "tc": "TC-F3-001",
+    "label": "쿠폰 발급(I-006 수정)",
+    "expect": "201 ISSUED"
+  },
+  {
+    "id": "TC-COUPONLIST-200",
+    "kind": "api",
+    "method": "GET",
+    "path": "/api/coupons",
+    "useToken": true,
+    "tc": "TC-F3-009",
+    "label": "내 쿠폰함",
+    "expect": "200"
+  },
+  {
+    "id": "TC-COUPON-409",
+    "kind": "api",
+    "method": "POST",
+    "path": "/api/coupons",
+    "useToken": true,
+    "body": {
+      "specialId": "00000000-0000-0000-0000-000000000033"
+    },
+    "tc": "TC-F3-006",
+    "label": "중복 발급 가드",
+    "expect": "409"
+  }
+]

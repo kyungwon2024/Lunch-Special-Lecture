@@ -1,0 +1,13 @@
+{
+  "name": "lsl-capture",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "점심특강 테스트 증적 스크린샷 캡처 (Playwright)",
+  "scripts": {
+    "cap": "node capture.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.61.0"
+  }
+}

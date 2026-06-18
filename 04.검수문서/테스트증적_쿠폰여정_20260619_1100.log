@@ -1,0 +1,24 @@
+# 점심특강 쿠폰 발급 종단 증적 (I-005/I-006 수정 후)
+# 수집일시: 2026-06-19 01:00:24 KST
+# 대상: https://lunch-special-lecture.vercel.app (재배포 dpl_3jdwvaju3)
+# ============================================================
+[I-005] lunch_specials reseed: expires_at 2026-06-10(만료) → 2026-06-26 (service_role REST PATCH 2건)
+[I-005] /api/specials 코드: .gt('expires_at', now) 만료필터 추가
+[I-006] /api/coupons 코드: insert에 store_id 추가 (coupons.store_id NOT NULL)
+
+[검증] /api/specials → 200, 특선 2건 (만료필터 적용 후에도 노출)
+[검증] 가입(201) → 로그인(200) → 쿠폰발급(201 ISSUED) → 쿠폰함(1건) → 중복발급(409)
+
+# 증적 스크린샷 11종: 04.검수문서/증적_스크린샷/*.png
+# 임베드 결과:        04.검수문서/테스트결과증적_20260619_1100.xlsx
+TC-BADTOKEN-401.png
+TC-COUPON-201.png
+TC-COUPON-409.png
+TC-COUPONLIST-200.png
+TC-COUPONS-401.png
+TC-LOGIN-200.png
+TC-LOGIN-401.png
+TC-METHOD-405.png
+TC-SIGNUP-201.png
+TC-SPECIALS-200.png
+TC-UI-HOME.png

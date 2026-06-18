@@ -1,0 +1,31 @@
+# 점심특강 라이브 API 테스트 증적 로그
+# 수집일시: 2026-06-19 00:23:49 KST
+# 대상: https://lunch-special-lecture.vercel.app (Vercel Production)
+# 방법: curl 블랙박스 실측
+# ============================================================
+
+[UI-HOME] GET /
+  → HTTP 200 | 0.083905s | 46248B
+[T01] GET /api/coupons (no token)
+{"error":"Unauthorized"}  → HTTP 401
+[T02] GET /api/coupons (forged token)
+{"error":"Invalid token"}  → HTTP 401
+[T03] POST /api/coupons (no token)
+{"error":"Unauthorized"}  → HTTP 401
+[T04] POST /api/auth/login {}
+{"error":"phone and password required"}  → HTTP 400
+[T05] POST /api/auth/signup {}
+{"error":"phone and password required"}  → HTTP 400
+[T06] POST /api/auth/login (broken JSON)
+{"error":"Invalid JSON body"}  → HTTP 400
+[T07] POST /api/auth/login (unknown acct)
+{"error":"전화번호 또는 비밀번호가 올바르지 않습니다"}  → HTTP 401
+[T09] GET /api/auth/login (method)
+  → HTTP 405
+[T10] GET /api/specials
+{"error":"TypeError: fetch failed"}  → HTTP 500 | 8.235911s
+
+# --- 인프라 진단 ---
+[INFRA] Supabase 기록 호스트 DNS:
+** server can't find qcstxdbrtkzzipjrvwmy.supabase.co: NXDOMAIN
+
